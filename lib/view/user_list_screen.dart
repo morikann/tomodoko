@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tomodoko/view/home_screen.dart';
 import '../model/user.dart';
 import 'user_detail_screen.dart';
 

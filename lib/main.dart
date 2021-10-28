@@ -21,11 +21,11 @@ class Tomodoko extends StatelessWidget {
       ),
       initialRoute: HomeScreen.id,
       routes: {
-        HomeScreen.id: (context) => HomeScreen(),
-        SignupScreen.id: (context) => SignupScreen(),
-        LoginScreen.id: (context) => LoginScreen(),
-        UserListScreen.id: (context) => UserListScreen(),
-        UserDetailScreen.id: (context) => UserDetailScreen(),
+        HomeScreen.id: (context) => const HomeScreen(),
+        SignupScreen.id: (context) => const SignupScreen(),
+        LoginScreen.id: (context) => const LoginScreen(),
+        UserListScreen.id: (context) => const UserListScreen(),
+        UserDetailScreen.id: (context) => const UserDetailScreen(),
       },
     );
   }
