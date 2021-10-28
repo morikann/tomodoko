@@ -13,7 +13,7 @@ class Tomodoko extends StatelessWidget {
     return MaterialApp(
       title: 'tomodoko',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.purple,
       ),
       home: const HomeScreen(),
     );

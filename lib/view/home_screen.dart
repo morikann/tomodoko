@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../component/common_button.dart';
+import 'signup_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -25,15 +26,26 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 30),
-                Image.asset(
-                  'images/tomodoko_top.png',
+                Hero(
+                  tag: 'logo',
+                  child: SizedBox(
+                    height: 300,
+                    child: Image.asset(
+                      'images/tomodoko_top.png',
+                    ),
+                  ),
                 ),
                 const SizedBox(
                   height: 60.0,
                 ),
                 CommonButton(
                   name: 'アカウント登録',
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SignupScreen()),
+                    );
+                  },
                   textColor: Colors.purple,
                   backgroundColor: Colors.white,
                 ),
