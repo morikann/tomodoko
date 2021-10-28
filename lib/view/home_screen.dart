@@ -4,6 +4,7 @@ import 'signup_screen.dart';
 import 'login_screen.dart';
 
 class HomeScreen extends StatelessWidget {
+  static const String id = 'home_screen';
   const HomeScreen({Key? key}) : super(key: key);
 
   @override
@@ -42,10 +43,7 @@ class HomeScreen extends StatelessWidget {
                 CommonButton(
                   name: 'アカウント登録',
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SignupScreen()),
-                    );
+                    Navigator.of(context).pushNamed(SignupScreen.id);
                   },
                   textColor: Colors.purple,
                   backgroundColor: Colors.white,
@@ -53,10 +51,7 @@ class HomeScreen extends StatelessWidget {
                 CommonButton(
                   name: 'ログイン',
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()),
-                    );
+                    Navigator.of(context).pushNamed(LoginScreen.id);
                   },
                   textColor: Colors.white,
                   backgroundColor: Colors.purple,

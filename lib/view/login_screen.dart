@@ -4,6 +4,7 @@ import '../component/common_text_field.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
+  static const String id = 'login_screen';
   const LoginScreen({Key? key}) : super(key: key);
 
   @override
@@ -67,10 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             TextButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SignupScreen()),
-                );
+                Navigator.of(context).pushNamed(SignupScreen.id);
               },
               child: const Text('アカウント登録はこちら'),
             ),

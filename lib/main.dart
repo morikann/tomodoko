@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import './view/home_screen.dart';
+import 'view/signup_screen.dart';
+import 'view/home_screen.dart';
+import 'view/login_screen.dart';
 
 void main() {
   runApp(const Tomodoko());
@@ -15,7 +17,12 @@ class Tomodoko extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.purple,
       ),
-      home: const HomeScreen(),
+      initialRoute: HomeScreen.id,
+      routes: {
+        HomeScreen.id: (context) => HomeScreen(),
+        SignupScreen.id: (context) => SignupScreen(),
+        LoginScreen.id: (context) => LoginScreen(),
+      },
     );
   }
 }
