@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import '../component/common_button.dart';
 import '../component/common_text_field.dart';
+import 'signup_screen.dart';
 
-class SignupScreen extends StatefulWidget {
-  const SignupScreen({Key? key}) : super(key: key);
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({Key? key}) : super(key: key);
 
   @override
-  State<SignupScreen> createState() => _SignupScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _SignupScreenState extends State<SignupScreen> {
-  late String username;
+class _LoginScreenState extends State<LoginScreen> {
   late String email;
   late String password;
 
@@ -20,7 +20,7 @@ class _SignupScreenState extends State<SignupScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: const Text(
-          'アカウント登録',
+          'ログイン',
           style: TextStyle(
             fontSize: 18,
           ),
@@ -43,12 +43,6 @@ class _SignupScreenState extends State<SignupScreen> {
               height: 60,
             ),
             CommonTextField(
-              label: 'ユーザー名',
-              onChanged: (value) {
-                username = value;
-              },
-            ),
-            CommonTextField(
               label: 'メールアドレス',
               onChanged: (value) {
                 email = value;
@@ -63,9 +57,8 @@ class _SignupScreenState extends State<SignupScreen> {
             ),
             const SizedBox(height: 30),
             CommonButton(
-              name: '登録',
+              name: 'ログイン',
               onPressed: () {
-                print(username);
                 print(email);
                 print(password);
               },
@@ -73,8 +66,13 @@ class _SignupScreenState extends State<SignupScreen> {
               textColor: Colors.white,
             ),
             TextButton(
-              onPressed: () {},
-              child: const Text('ログインはこちら'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SignupScreen()),
+                );
+              },
+              child: const Text('アカウント登録はこちら'),
             ),
           ],
         ),

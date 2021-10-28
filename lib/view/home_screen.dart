@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../component/common_button.dart';
 import 'signup_screen.dart';
+import 'login_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -51,7 +52,12 @@ class HomeScreen extends StatelessWidget {
                 ),
                 CommonButton(
                   name: 'ログイン',
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginScreen()),
+                    );
+                  },
                   textColor: Colors.white,
                   backgroundColor: Colors.purple,
                 ),
