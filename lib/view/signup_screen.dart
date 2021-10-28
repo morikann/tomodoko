@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../component/common_button.dart';
 import '../component/common_text_field.dart';
+import 'login_screen.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
@@ -73,7 +74,12 @@ class _SignupScreenState extends State<SignupScreen> {
               textColor: Colors.white,
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                );
+              },
               child: const Text('ログインはこちら'),
             ),
           ],
