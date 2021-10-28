@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'view/signup_screen.dart';
 import 'view/home_screen.dart';
 import 'view/login_screen.dart';
+import 'view/user_list_screen.dart';
 
 void main() {
   runApp(const Tomodoko());
@@ -22,6 +23,7 @@ class Tomodoko extends StatelessWidget {
         HomeScreen.id: (context) => HomeScreen(),
         SignupScreen.id: (context) => SignupScreen(),
         LoginScreen.id: (context) => LoginScreen(),
+        UsersScreen.id: (context) => UsersScreen(),
       },
     );
   }

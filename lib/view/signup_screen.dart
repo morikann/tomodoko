@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../component/common_button.dart';
 import '../component/common_text_field.dart';
 import 'login_screen.dart';
+import 'user_list_screen.dart';
 
 class SignupScreen extends StatefulWidget {
   static const String id = 'signup_screen';
@@ -70,6 +71,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 print(username);
                 print(email);
                 print(password);
+                Navigator.of(context).pushNamed(UsersScreen.id);
               },
               backgroundColor: Colors.purple,
               textColor: Colors.white,
