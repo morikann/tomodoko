@@ -71,7 +71,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 print(username);
                 print(email);
                 print(password);
-                Navigator.of(context).pushNamed(UsersScreen.id);
+                Navigator.of(context).pushNamed(UserListScreen.id);
               },
               backgroundColor: Colors.purple,
               textColor: Colors.white,

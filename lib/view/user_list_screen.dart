@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:tomodoko/view/home_screen.dart';
 import '../model/user.dart';
+import 'user_detail_screen.dart';
 
-class UsersScreen extends StatefulWidget {
+class UserListScreen extends StatefulWidget {
   static const id = 'users_screen';
-  const UsersScreen({Key? key}) : super(key: key);
+  const UserListScreen({Key? key}) : super(key: key);
 
   @override
-  State<UsersScreen> createState() => _UsersScreenState();
+  State<UserListScreen> createState() => _UserListScreenState();
 }
 
-class _UsersScreenState extends State<UsersScreen> {
+class _UserListScreenState extends State<UserListScreen> {
   List<User> users = [
     User(username: '田中 太郎'),
     User(username: '東 太郎'),
@@ -32,7 +33,9 @@ class _UsersScreenState extends State<UsersScreen> {
           itemCount: users.length,
           itemBuilder: (BuildContext context, int index) {
             return GestureDetector(
-              onTap: () {},
+              onTap: () {
+                Navigator.of(context).pushNamed(UserDetailScreen.id);
+              },
               child: ListTile(
                 // 余裕があればユーザーの画像に変更
                 leading: const Icon(Icons.face),
