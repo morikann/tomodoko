@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../component/common_button.dart';
+import '../component/common_text_field.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
@@ -42,19 +43,19 @@ class _SignupScreenState extends State<SignupScreen> {
                 height: 60,
               ),
               CommonTextField(
-                name: 'ユーザー名',
+                label: 'ユーザー名',
                 onChanged: (value) {
                   username = value;
                 },
               ),
               CommonTextField(
-                name: 'メールアドレス',
+                label: 'メールアドレス',
                 onChanged: (value) {
                   email = value;
                 },
               ),
               CommonTextField(
-                name: 'パスワード',
+                label: 'パスワード',
                 obscure: true,
                 onChanged: (value) {
                   password = value;
@@ -78,34 +79,5 @@ class _SignupScreenState extends State<SignupScreen> {
             ],
           ),
         ));
-  }
-}
-
-class CommonTextField extends StatelessWidget {
-  final String name;
-  final bool? obscure;
-  final Function(String) onChanged;
-
-  const CommonTextField({
-    required this.name,
-    this.obscure,
-    required this.onChanged,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      onChanged: onChanged,
-      obscureText: obscure ?? false,
-      decoration: InputDecoration(
-        label: Text(
-          name,
-          style: const TextStyle(
-            fontSize: 14,
-          ),
-        ),
-      ),
-    );
   }
 }
