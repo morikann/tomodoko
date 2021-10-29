@@ -31,16 +31,14 @@ class _UserListScreenState extends State<UserListScreen> {
         child: ListView.builder(
           itemCount: users.length,
           itemBuilder: (BuildContext context, int index) {
-            return GestureDetector(
+            return ListTile(
+              // 余裕があればユーザーの画像に変更
+              leading: const Icon(Icons.face),
+              title: Text(users[index].username),
+              trailing: const Icon(Icons.arrow_right),
               onTap: () {
                 Navigator.of(context).pushNamed(UserDetailScreen.id);
               },
-              child: ListTile(
-                // 余裕があればユーザーの画像に変更
-                leading: const Icon(Icons.face),
-                title: Text(users[index].username),
-                trailing: const Icon(Icons.arrow_right),
-              ),
             );
           },
         ),

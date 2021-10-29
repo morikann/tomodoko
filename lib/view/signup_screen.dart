@@ -31,22 +31,22 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30.0),
+          padding: const EdgeInsets.only(left: 30, right: 30, top: 30),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Hero(
-                tag: 'logo',
-                child: Flexible(
+              Flexible(
+                child: Hero(
+                  tag: 'logo',
                   child: SizedBox(
                     child: Image.asset('images/tomodoko_top.png'),
-                    height: 250,
+                    height: 200,
                   ),
                 ),
               ),
               const SizedBox(
-                height: 60,
+                height: 40,
               ),
               CommonTextField(
                 label: 'ユーザー名',
@@ -74,7 +74,10 @@ class _SignupScreenState extends State<SignupScreen> {
                   print(username);
                   print(email);
                   print(password);
-                  Navigator.of(context).pushNamed(UserListScreen.id);
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    UserListScreen.id,
+                    (route) => false,
+                  );
                 },
                 backgroundColor: Colors.purple,
                 textColor: Colors.white,
