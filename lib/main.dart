@@ -4,8 +4,11 @@ import 'view/home_screen.dart';
 import 'view/login_screen.dart';
 import 'view/user_list_screen.dart';
 import 'view/user_detail_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const Tomodoko());
 }
 
