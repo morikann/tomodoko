@@ -3,6 +3,8 @@ import '../component/common_button.dart';
 import '../component/common_text_field.dart';
 import 'login_screen.dart';
 import 'user_list_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SignupScreen extends StatefulWidget {
   static const String id = 'signup_screen';
@@ -13,9 +15,46 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late String username = '';
   late String email = '';
   late String password = '';
+
+  Future<void> addUser(String uid) {
+    return _firestore.collection('users').doc(uid).set({
+      'name': username,
+    }).then((value) {
+      print('ユーザー登録完了');
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        UserListScreen.id,
+        (route) => false,
+      );
+    }).catchError(
+      (error) => print('Failed to add user: $error'),
+    );
+  }
+
+  void signup(String email, String password) async {
+    try {
+      final UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      final uid = userCredential.user!.uid;
+      addUser(uid);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        // パスワードは6文字以上
+        print('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,14 +109,8 @@ class _SignupScreenState extends State<SignupScreen> {
               const SizedBox(height: 30),
               CommonButton(
                 name: '登録',
-                onPressed: () {
-                  print(username);
-                  print(email);
-                  print(password);
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    UserListScreen.id,
-                    (route) => false,
-                  );
+                onPressed: () async {
+                  signup(email, password);
                 },
                 backgroundColor: Colors.purple,
                 textColor: Colors.white,
