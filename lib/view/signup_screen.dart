@@ -5,6 +5,7 @@ import 'login_screen.dart';
 import 'user_list_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 class SignupScreen extends StatefulWidget {
   static const String id = 'signup_screen';
@@ -17,6 +18,7 @@ class SignupScreen extends StatefulWidget {
 class _SignupScreenState extends State<SignupScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  bool _showSpinner = false;
   late String username = '';
   late String email = '';
   late String password = '';
@@ -30,12 +32,15 @@ class _SignupScreenState extends State<SignupScreen> {
         UserListScreen.id,
         (route) => false,
       );
+      setState(() {
+        _showSpinner = false;
+      });
     }).catchError(
       (error) => print('Failed to add user: $error'),
     );
   }
 
-  void signup(String email, String password) async {
+  Future<void> signup(String email, String password) async {
     try {
       final UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
@@ -68,60 +73,69 @@ class _SignupScreenState extends State<SignupScreen> {
           ),
         ),
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 30, right: 30, top: 30),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Flexible(
-                child: Hero(
-                  tag: 'logo',
-                  child: SizedBox(
-                    child: Image.asset('images/tomodoko_top.png'),
-                    height: 200,
+      body: ModalProgressHUD(
+        inAsyncCall: _showSpinner,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 30, right: 30, top: 30),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Flexible(
+                  child: Hero(
+                    tag: 'logo',
+                    child: SizedBox(
+                      child: Image.asset('images/tomodoko_top.png'),
+                      height: 200,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(
-                height: 40,
-              ),
-              CommonTextField(
-                label: 'ユーザー名',
-                onChanged: (value) {
-                  username = value;
-                },
-              ),
-              CommonTextField(
-                label: 'メールアドレス',
-                onChanged: (value) {
-                  email = value;
-                },
-              ),
-              CommonTextField(
-                label: 'パスワード',
-                obscure: true,
-                onChanged: (value) {
-                  password = value;
-                },
-              ),
-              const SizedBox(height: 30),
-              CommonButton(
-                name: '登録',
-                onPressed: () async {
-                  signup(email, password);
-                },
-                backgroundColor: Colors.purple,
-                textColor: Colors.white,
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pushNamed(LoginScreen.id);
-                },
-                child: const Text('ログインはこちら'),
-              ),
-            ],
+                const SizedBox(
+                  height: 40,
+                ),
+                CommonTextField(
+                  label: 'ユーザー名',
+                  onChanged: (value) {
+                    username = value;
+                  },
+                ),
+                CommonTextField(
+                  label: 'メールアドレス',
+                  onChanged: (value) {
+                    email = value;
+                  },
+                ),
+                CommonTextField(
+                  label: 'パスワード',
+                  obscure: true,
+                  onChanged: (value) {
+                    password = value;
+                  },
+                ),
+                const SizedBox(height: 30),
+                CommonButton(
+                  name: '登録',
+                  onPressed: () async {
+                    setState(() {
+                      _showSpinner = true;
+                    });
+                    await signup(email, password);
+                    setState(() {
+                      _showSpinner = false;
+                    });
+                  },
+                  backgroundColor: Colors.purple,
+                  textColor: Colors.white,
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(LoginScreen.id);
+                  },
+                  child: const Text('ログインはこちら'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
