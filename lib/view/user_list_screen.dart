@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'home_screen.dart';
 import '../model/user.dart';
 import 'user_detail_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -30,6 +31,36 @@ class _UserListScreenState extends State<UserListScreen> {
           'ユーザー一覧',
           style: TextStyle(fontSize: 18),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await showDialog<AlertDialog>(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('ログアウトしますか？'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context)
+                              .pushReplacementNamed(HomeScreen.id);
+                        },
+                        child: const Text('OK'),
+                      )
+                    ],
+                  );
+                },
+              );
+            },
+          )
+        ],
       ),
       body: SafeArea(
         child: StreamBuilder<QuerySnapshot>(

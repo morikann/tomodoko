@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'home_screen.dart';
 
 class UserDetailScreen extends StatelessWidget {
   static const id = 'user_detail_screen';
@@ -12,6 +13,36 @@ class UserDetailScreen extends StatelessWidget {
           'ユーザー詳細',
           style: TextStyle(fontSize: 18),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await showDialog<AlertDialog>(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('ログアウトしますか？'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context)
+                              .pushReplacementNamed(HomeScreen.id);
+                        },
+                        child: const Text('OK'),
+                      )
+                    ],
+                  );
+                },
+              );
+            },
+          )
+        ],
       ),
       body: SafeArea(
         child: Padding(
