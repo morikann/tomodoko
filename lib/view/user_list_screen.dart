@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../model/user.dart';
 import 'user_detail_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserListScreen extends StatefulWidget {
   static const id = 'users_screen';
@@ -11,6 +12,9 @@ class UserListScreen extends StatefulWidget {
 }
 
 class _UserListScreenState extends State<UserListScreen> {
+  final Stream<QuerySnapshot> _usersStream =
+      FirebaseFirestore.instance.collection('users').snapshots();
+
   List<User> users = [
     User(username: '田中 太郎'),
     User(username: '東 太郎'),
@@ -28,17 +32,35 @@ class _UserListScreenState extends State<UserListScreen> {
         ),
       ),
       body: SafeArea(
-        child: ListView.builder(
-          itemCount: users.length,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              // 余裕があればユーザーの画像に変更
-              leading: const Icon(Icons.face),
-              title: Text(users[index].username),
-              trailing: const Icon(Icons.arrow_right),
-              onTap: () {
-                Navigator.of(context).pushNamed(UserDetailScreen.id);
-              },
+        child: StreamBuilder<QuerySnapshot>(
+          stream: _usersStream,
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.hasError) {
+              return const Text('Something went wrong');
+            }
+
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+
+            return ListView(
+              children: snapshot.data!.docs.map(
+                (DocumentSnapshot document) {
+                  Map<String, dynamic> data =
+                      document.data()! as Map<String, dynamic>;
+                  return ListTile(
+                    onTap: () {
+                      Navigator.of(context).pushNamed(UserDetailScreen.id);
+                    },
+                    leading: const Icon(Icons.face),
+                    title: Text(data['name']),
+                    trailing: const Icon(Icons.arrow_right),
+                  );
+                },
+              ).toList(),
             );
           },
         ),
