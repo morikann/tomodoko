@@ -3,6 +3,7 @@ import 'package:tomodoko/view/user_list_screen.dart';
 import '../component/common_button.dart';
 import '../component/common_text_field.dart';
 import 'signup_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = 'login_screen';
@@ -13,6 +14,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _auth = FirebaseAuth.instance;
   late String email = '';
   late String password = '';
 
@@ -62,13 +64,23 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 30),
             CommonButton(
               name: 'ログイン',
-              onPressed: () {
-                print(email);
-                print(password);
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                  UserListScreen.id,
-                  (route) => false,
-                );
+              onPressed: () async {
+                try {
+                  await _auth.signInWithEmailAndPassword(
+                      email: email, password: password);
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    UserListScreen.id,
+                    (route) => false,
+                  );
+                } on FirebaseAuthException catch (e) {
+                  if (e.code == 'user-not-found') {
+                    print('No user found for that email.');
+                  } else if (e.code == 'wrong-password') {
+                    print('Wrong password provided for that user.');
+                  }
+                } catch (e) {
+                  print(e);
+                }
               },
               backgroundColor: Colors.purple,
               textColor: Colors.white,
