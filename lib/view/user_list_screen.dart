@@ -3,6 +3,7 @@ import 'home_screen.dart';
 import '../model/user.dart';
 import 'user_detail_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class UserListScreen extends StatefulWidget {
   static const id = 'users_screen';
@@ -15,13 +16,14 @@ class UserListScreen extends StatefulWidget {
 class _UserListScreenState extends State<UserListScreen> {
   final Stream<QuerySnapshot> _usersStream =
       FirebaseFirestore.instance.collection('users').snapshots();
+  final _auth = FirebaseAuth.instance;
 
-  List<User> users = [
-    User(username: '田中 太郎'),
-    User(username: '東 太郎'),
-    User(username: '隣の 太郎'),
-    User(username: 'taro'),
-  ];
+  // List<User> users = [
+  //   User(username: '田中 太郎'),
+  //   User(username: '東 太郎'),
+  //   User(username: '隣の 太郎'),
+  //   User(username: 'taro'),
+  // ];
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +50,8 @@ class _UserListScreenState extends State<UserListScreen> {
                         child: const Text('Cancel'),
                       ),
                       TextButton(
-                        onPressed: () {
+                        onPressed: () async {
+                          await _auth.signOut();
                           Navigator.of(context)
                               .pushReplacementNamed(HomeScreen.id);
                         },

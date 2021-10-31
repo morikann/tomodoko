@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class UserDetailScreen extends StatelessWidget {
+class UserDetailScreen extends StatefulWidget {
   static const id = 'user_detail_screen';
   const UserDetailScreen({Key? key}) : super(key: key);
+
+  @override
+  State<UserDetailScreen> createState() => _UserDetailScreenState();
+}
+
+class _UserDetailScreenState extends State<UserDetailScreen> {
+  final _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +38,8 @@ class UserDetailScreen extends StatelessWidget {
                         child: const Text('Cancel'),
                       ),
                       TextButton(
-                        onPressed: () {
+                        onPressed: () async {
+                          await _auth.signOut();
                           Navigator.of(context)
                               .pushReplacementNamed(HomeScreen.id);
                         },
