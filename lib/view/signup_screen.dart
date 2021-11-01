@@ -191,22 +191,22 @@ class _SignupScreenState extends State<SignupScreen> {
                       emailTextField(),
                       // password field
                       passwordTextField(),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 30),
-                        child: CommonButton(
-                          name: '登録',
-                          textColor: Colors.white,
-                          backgroundColor: Colors.purple,
-                          onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              setState(() {
-                                _showSpinner = true;
-                              });
-                              _formKey.currentState!.save();
-                              await signup(email, password);
-                            }
-                          },
-                        ),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      CommonButton(
+                        name: '登録',
+                        textColor: Colors.white,
+                        backgroundColor: Colors.purple,
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            setState(() {
+                              _showSpinner = true;
+                            });
+                            _formKey.currentState!.save();
+                            await signup(email, password);
+                          }
+                        },
                       ),
                     ],
                   ),
