@@ -41,9 +41,11 @@ class _SignupScreenState extends State<SignupScreen> {
         _showSpinner = false;
       });
     }).catchError((e) {
-      SnackBar(
-        backgroundColor: Colors.red,
-        content: Text('予期せぬエラーが発生しました: $e'),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('予期せぬエラーが発生しました: $e'),
+        ),
       );
       setState(() {
         _showSpinner = false;
