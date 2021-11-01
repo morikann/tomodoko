@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:tomodoko/view/user_list_screen.dart';
 import '../component/common_button.dart';
-import '../component/common_text_field.dart';
 import 'signup_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:email_validator/email_validator.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = 'login_screen';
@@ -20,7 +20,11 @@ class _LoginScreenState extends State<LoginScreen> {
   late String email = '';
   late String password = '';
 
-  Future<void> signin(String email, String password) async {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  Future<void> signIn(String email, String password) async {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
       Navigator.of(context).pushNamedAndRemoveUntil(
@@ -29,13 +33,36 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        print('No user found for that email.');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('メールアドレスが見つかりませんでした'),
+          ),
+        );
       } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('パスワードが正しくありません'),
+          ),
+        );
       }
     } catch (e) {
-      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('予期せぬエラーが発生しました: $e'),
+        ),
+      );
     }
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   @override
@@ -71,33 +98,65 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(
                   height: 40,
                 ),
-                CommonTextField(
-                  label: 'メールアドレス',
-                  onChanged: (value) {
-                    email = value;
-                  },
-                ),
-                CommonTextField(
-                  label: 'パスワード',
-                  obscure: true,
-                  onChanged: (value) {
-                    password = value;
-                  },
-                ),
-                const SizedBox(height: 30),
-                CommonButton(
-                  name: 'ログイン',
-                  onPressed: () async {
-                    setState(() {
-                      _showSpinner = true;
-                    });
-                    await signin(email, password);
-                    setState(() {
-                      _showSpinner = false;
-                    });
-                  },
-                  backgroundColor: Colors.purple,
-                  textColor: Colors.white,
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          // 1文字以上必要
+                          if (value == null || value.isEmpty) {
+                            return 'メールアドレスを入力してください';
+                          }
+                          // メールアドレス以外は受けつけない
+                          if (!EmailValidator.validate(value)) {
+                            return '正しいメールアドレスを入力してください';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          setState(() {
+                            email = value!;
+                          });
+                        },
+                        controller: _emailController,
+                        decoration: const InputDecoration(
+                          labelText: 'email',
+                        ),
+                      ),
+                      TextFormField(
+                        obscureText: true,
+                        onSaved: (value) {
+                          setState(() {
+                            password = value!;
+                          });
+                        },
+                        controller: _passwordController,
+                        decoration: const InputDecoration(
+                          labelText: 'password',
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      CommonButton(
+                        name: 'ログイン',
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            setState(() {
+                              _showSpinner = true;
+                            });
+                            _formKey.currentState!.save();
+                            await signIn(email, password);
+                            setState(() {
+                              _showSpinner = false;
+                            });
+                          }
+                        },
+                        backgroundColor: Colors.purple,
+                        textColor: Colors.white,
+                      ),
+                    ],
+                  ),
                 ),
                 TextButton(
                   onPressed: () {
