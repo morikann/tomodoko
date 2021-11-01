@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../component/common_button.dart';
-import '../component/common_text_field.dart';
+import 'package:tomodoko/component/common_button.dart';
 import 'login_screen.dart';
 import 'user_list_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:email_validator/email_validator.dart';
 
 class SignupScreen extends StatefulWidget {
   static const String id = 'signup_screen';
@@ -17,17 +17,22 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
   bool _showSpinner = false;
   late String username = '';
   late String email = '';
   late String password = '';
+  bool _nameExists = false;
+
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   Future<void> addUser(String uid) {
-    return _firestore.collection('users').doc(uid).set({
+    return _fireStore.collection('users').doc(uid).set({
       'name': username,
     }).then((value) {
-      print('ユーザー登録完了');
       Navigator.of(context).pushNamedAndRemoveUntil(
         UserListScreen.id,
         (route) => false,
@@ -35,9 +40,15 @@ class _SignupScreenState extends State<SignupScreen> {
       setState(() {
         _showSpinner = false;
       });
-    }).catchError(
-      (error) => print('Failed to add user: $error'),
-    );
+    }).catchError((e) {
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text('予期せぬエラーが発生しました: $e'),
+      );
+      setState(() {
+        _showSpinner = false;
+      });
+    });
   }
 
   Future<void> signup(String email, String password) async {
@@ -50,15 +61,57 @@ class _SignupScreenState extends State<SignupScreen> {
       final uid = userCredential.user!.uid;
       addUser(uid);
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        // パスワードは6文字以上
-        print('The password provided is too weak.');
-      } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
+      if (e.code == 'email-already-in-use') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('$emailは既に登録されています'),
+          ),
+        );
+        setState(() {
+          _showSpinner = false;
+        });
       }
     } catch (e) {
-      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('予期せぬエラーが発生しました: $e'),
+        ),
+      );
+      setState(() {
+        _showSpinner = false;
+      });
     }
+  }
+
+  Future<void> checkNameExists(String name) async {
+    _fireStore
+        .collection('users')
+        .where('name', isEqualTo: name)
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      if (querySnapshot.docs.isNotEmpty) {
+        setState(() {
+          _nameExists = true;
+        });
+      } else {
+        setState(() {
+          _nameExists = false;
+        });
+      }
+    }).catchError((e) {
+      setState(() {
+        _nameExists = false;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    // widgetTreeからwidgetが消された時に、controllerも綺麗に消す
+    _nameController.dispose();
+    super.dispose();
   }
 
   @override
@@ -94,39 +147,67 @@ class _SignupScreenState extends State<SignupScreen> {
                 const SizedBox(
                   height: 40,
                 ),
-                CommonTextField(
-                  label: 'ユーザー名',
-                  onChanged: (value) {
-                    username = value;
-                  },
-                ),
-                CommonTextField(
-                  label: 'メールアドレス',
-                  onChanged: (value) {
-                    email = value;
-                  },
-                ),
-                CommonTextField(
-                  label: 'パスワード',
-                  obscure: true,
-                  onChanged: (value) {
-                    password = value;
-                  },
-                ),
-                const SizedBox(height: 30),
-                CommonButton(
-                  name: '登録',
-                  onPressed: () async {
-                    setState(() {
-                      _showSpinner = true;
-                    });
-                    await signup(email, password);
-                    setState(() {
-                      _showSpinner = false;
-                    });
-                  },
-                  backgroundColor: Colors.purple,
-                  textColor: Colors.white,
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      // username field
+                      TextFormField(
+                        keyboardType: TextInputType.name,
+                        validator: (value) {
+                          // 1文字以上10文字以内（スペースなどの空白で通ってしまうので、trimメソッドで前後の空白を消す）
+                          if (value == null ||
+                              value.trim().isEmpty ||
+                              value.length > 10) {
+                            return '1~10文字以内で名前を入力してください';
+                          }
+                          // 同じ名前は登録できない
+                          if (_nameExists) {
+                            return '名前は既に存在しています';
+                          }
+                          return null;
+                        },
+                        onChanged: (value) async {
+                          // validator内では非同期処理が使えないので、onChanged内でstateを更新。
+                          // ただ、文字が変わるたびにクエリを発行してfireStoreに余分な負荷がかかりそう。
+                          // onSaved内で書いた場合、_formKey.currentState!.save();の後に_formKey.currentState!.validate()を
+                          // 実行してもcheckNameExists(value)は非同期なので、_formKey.currentState!.validate()が
+                          // 先に実行されてうまく動作しない
+                          await checkNameExists(value);
+                        },
+                        onSaved: (value) {
+                          setState(() {
+                            username = value!;
+                          });
+                        },
+                        controller: _nameController,
+                        decoration: const InputDecoration(
+                          labelText: 'username',
+                        ),
+                      ),
+                      // email field
+                      emailTextField(),
+                      // password field
+                      passwordTextField(),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 30),
+                        child: CommonButton(
+                          name: '登録',
+                          textColor: Colors.white,
+                          backgroundColor: Colors.purple,
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+                              setState(() {
+                                _showSpinner = true;
+                              });
+                              _formKey.currentState!.save();
+                              await signup(email, password);
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 TextButton(
                   onPressed: () {
@@ -138,6 +219,54 @@ class _SignupScreenState extends State<SignupScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  TextFormField passwordTextField() {
+    return TextFormField(
+      obscureText: true,
+      validator: (value) {
+        if (!RegExp(r'^(?=.*?[a-zA-Z])(?=.*?\d)[a-zA-Z\d]{8,}$')
+            .hasMatch(value!)) {
+          return '8文字以上の半角英数字の混在で入力してください';
+        }
+        return null;
+      },
+      onSaved: (value) {
+        setState(() {
+          password = value!;
+        });
+      },
+      controller: _passwordController,
+      decoration: const InputDecoration(
+        labelText: 'password',
+      ),
+    );
+  }
+
+  TextFormField emailTextField() {
+    return TextFormField(
+      keyboardType: TextInputType.emailAddress,
+      validator: (value) {
+        // 1文字以上必要
+        if (value == null || value.isEmpty) {
+          return 'メールアドレスを入力してください';
+        }
+        // メールアドレス以外は受けつけない
+        if (!EmailValidator.validate(value)) {
+          return '正しいメールアドレスを入力してください';
+        }
+        return null;
+      },
+      onSaved: (value) {
+        setState(() {
+          email = value!;
+        });
+      },
+      controller: _emailController,
+      decoration: const InputDecoration(
+        labelText: 'email',
       ),
     );
   }
