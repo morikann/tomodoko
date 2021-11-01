@@ -82,89 +82,98 @@ class _LoginScreenState extends State<LoginScreen> {
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.only(left: 30, right: 30, top: 30),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Flexible(
-                  child: Hero(
-                    tag: 'logo',
-                    child: SizedBox(
-                      child: Image.asset('images/tomodoko_top.png'),
-                      height: 200,
+            child: SingleChildScrollView(
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height - 100,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Hero(
+                        tag: 'logo',
+                        child: SizedBox(
+                          child: Image.asset('images/tomodoko_top.png'),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 40,
-                ),
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (value) {
-                          // 1文字以上必要
-                          if (value == null || value.isEmpty) {
-                            return 'メールアドレスを入力してください';
-                          }
-                          // メールアドレス以外は受けつけない
-                          if (!EmailValidator.validate(value)) {
-                            return '正しいメールアドレスを入力してください';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) {
-                          setState(() {
-                            email = value!;
-                          });
-                        },
-                        controller: _emailController,
-                        decoration: const InputDecoration(
-                          labelText: 'email',
+                    const SizedBox(
+                      height: 40,
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            TextFormField(
+                              keyboardType: TextInputType.emailAddress,
+                              validator: (value) {
+                                // 1文字以上必要
+                                if (value == null || value.isEmpty) {
+                                  return 'メールアドレスを入力してください';
+                                }
+                                // メールアドレス以外は受けつけない
+                                if (!EmailValidator.validate(value)) {
+                                  return '正しいメールアドレスを入力してください';
+                                }
+                                return null;
+                              },
+                              onSaved: (value) {
+                                setState(() {
+                                  email = value!;
+                                });
+                              },
+                              controller: _emailController,
+                              decoration: const InputDecoration(
+                                labelText: 'email',
+                              ),
+                            ),
+                            TextFormField(
+                              obscureText: true,
+                              onSaved: (value) {
+                                setState(() {
+                                  password = value!;
+                                });
+                              },
+                              controller: _passwordController,
+                              decoration: const InputDecoration(
+                                labelText: 'password',
+                              ),
+                            ),
+                            const SizedBox(height: 30),
+                            CommonButton(
+                              name: 'ログイン',
+                              onPressed: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  setState(() {
+                                    _showSpinner = true;
+                                  });
+                                  _formKey.currentState!.save();
+                                  await signIn(email, password);
+                                  setState(() {
+                                    _showSpinner = false;
+                                  });
+                                }
+                              },
+                              backgroundColor: Colors.purple,
+                              textColor: Colors.white,
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context)
+                                    .pushNamed(SignupScreen.id);
+                              },
+                              child: const Text('アカウント登録はこちら'),
+                            ),
+                          ],
                         ),
                       ),
-                      TextFormField(
-                        obscureText: true,
-                        onSaved: (value) {
-                          setState(() {
-                            password = value!;
-                          });
-                        },
-                        controller: _passwordController,
-                        decoration: const InputDecoration(
-                          labelText: 'password',
-                        ),
-                      ),
-                      const SizedBox(height: 30),
-                      CommonButton(
-                        name: 'ログイン',
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            setState(() {
-                              _showSpinner = true;
-                            });
-                            _formKey.currentState!.save();
-                            await signIn(email, password);
-                            setState(() {
-                              _showSpinner = false;
-                            });
-                          }
-                        },
-                        backgroundColor: Colors.purple,
-                        textColor: Colors.white,
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pushNamed(SignupScreen.id);
-                  },
-                  child: const Text('アカウント登録はこちら'),
-                ),
-              ],
+              ),
             ),
           ),
         ),

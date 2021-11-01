@@ -133,91 +133,99 @@ class _SignupScreenState extends State<SignupScreen> {
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.only(left: 30, right: 30, top: 30),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Flexible(
-                  child: Hero(
-                    tag: 'logo',
-                    child: SizedBox(
-                      child: Image.asset('images/tomodoko_top.png'),
-                      height: 200,
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 40,
-                ),
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      // username field
-                      TextFormField(
-                        keyboardType: TextInputType.name,
-                        validator: (value) {
-                          // 1文字以上10文字以内（スペースなどの空白で通ってしまうので、trimメソッドで前後の空白を消す）
-                          if (value == null ||
-                              value.trim().isEmpty ||
-                              value.length > 10) {
-                            return '1~10文字以内で名前を入力してください';
-                          }
-                          // 同じ名前は登録できない
-                          if (_nameExists) {
-                            return '名前は既に存在しています';
-                          }
-                          return null;
-                        },
-                        onChanged: (value) async {
-                          // validator内では非同期処理が使えないので、onChanged内でstateを更新。
-                          // ただ、文字が変わるたびにクエリを発行してfireStoreに余分な負荷がかかりそう。
-                          // onSaved内で書いた場合、_formKey.currentState!.save();の後に_formKey.currentState!.validate()を
-                          // 実行してもcheckNameExists(value)は非同期なので、_formKey.currentState!.validate()が
-                          // 先に実行されてうまく動作しない
-                          await checkNameExists(value);
-                        },
-                        onSaved: (value) {
-                          setState(() {
-                            username = value!;
-                          });
-                        },
-                        controller: _nameController,
-                        decoration: const InputDecoration(
-                          labelText: 'username',
+            child: SingleChildScrollView(
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height - 100,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Hero(
+                        tag: 'logo',
+                        child: SizedBox(
+                          child: Image.asset('images/tomodoko_top.png'),
                         ),
                       ),
-                      // email field
-                      emailTextField(),
-                      // password field
-                      passwordTextField(),
-                      const SizedBox(
-                        height: 30,
+                    ),
+                    const SizedBox(
+                      height: 40,
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            // username field
+                            TextFormField(
+                              keyboardType: TextInputType.name,
+                              validator: (value) {
+                                // 1文字以上10文字以内（スペースなどの空白で通ってしまうので、trimメソッドで前後の空白を消す）
+                                if (value == null ||
+                                    value.trim().isEmpty ||
+                                    value.length > 10) {
+                                  return '1~10文字以内で名前を入力してください';
+                                }
+                                // 同じ名前は登録できない
+                                if (_nameExists) {
+                                  return '名前は既に存在しています';
+                                }
+                                return null;
+                              },
+                              onChanged: (value) async {
+                                // validator内では非同期処理が使えないので、onChanged内でstateを更新。
+                                // ただ、文字が変わるたびにクエリを発行してfireStoreに余分な負荷がかかりそう。
+                                // onSaved内で書いた場合、_formKey.currentState!.save();の後に_formKey.currentState!.validate()を
+                                // 実行してもcheckNameExists(value)は非同期なので、_formKey.currentState!.validate()が
+                                // 先に実行されてうまく動作しない
+                                await checkNameExists(value);
+                              },
+                              onSaved: (value) {
+                                setState(() {
+                                  username = value!;
+                                });
+                              },
+                              controller: _nameController,
+                              decoration: const InputDecoration(
+                                labelText: 'username',
+                              ),
+                            ),
+                            // email field
+                            emailTextField(),
+                            // password field
+                            passwordTextField(),
+                            const SizedBox(
+                              height: 30,
+                            ),
+                            CommonButton(
+                              name: '登録',
+                              textColor: Colors.white,
+                              backgroundColor: Colors.purple,
+                              onPressed: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  setState(() {
+                                    _showSpinner = true;
+                                  });
+                                  _formKey.currentState!.save();
+                                  await signup(email, password);
+                                }
+                              },
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pushNamed(LoginScreen.id);
+                              },
+                              child: const Text('ログインはこちら'),
+                            ),
+                          ],
+                        ),
                       ),
-                      CommonButton(
-                        name: '登録',
-                        textColor: Colors.white,
-                        backgroundColor: Colors.purple,
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            setState(() {
-                              _showSpinner = true;
-                            });
-                            _formKey.currentState!.save();
-                            await signup(email, password);
-                          }
-                        },
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pushNamed(LoginScreen.id);
-                  },
-                  child: const Text('ログインはこちら'),
-                ),
-              ],
+              ),
             ),
           ),
         ),
