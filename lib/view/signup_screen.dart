@@ -88,7 +88,10 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   Future<void> checkNameExists(String name) async {
-    _fireStore
+    // このコード内ではawaitがなくてもうまく動作するが、呼び出し元のonPressed()で
+    // この関数を呼び出すときに以下の非同期処理をawaitしていないと、処理が先に進み
+    // うまく動作しないため、awaitが必要。非同期処理は複雑だからもっと勉強しないと。
+    await _fireStore
         .collection('users')
         .where('name', isEqualTo: name)
         .get()
@@ -113,6 +116,8 @@ class _SignupScreenState extends State<SignupScreen> {
   void dispose() {
     // widgetTreeからwidgetが消された時に、controllerも綺麗に消す
     _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -180,7 +185,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                 // onSaved内で書いた場合、_formKey.currentState!.save();の後に_formKey.currentState!.validate()を
                                 // 実行してもcheckNameExists(value)は非同期なので、_formKey.currentState!.validate()が
                                 // 先に実行されてうまく動作しない
-                                await checkNameExists(value);
+                                // await checkNameExists(value);
                               },
                               onSaved: (value) {
                                 setState(() {
@@ -204,11 +209,12 @@ class _SignupScreenState extends State<SignupScreen> {
                               textColor: Colors.white,
                               backgroundColor: Colors.purple,
                               onPressed: () async {
+                                _formKey.currentState!.save();
+                                await checkNameExists(username);
                                 if (_formKey.currentState!.validate()) {
                                   setState(() {
                                     _showSpinner = true;
                                   });
-                                  _formKey.currentState!.save();
                                   await signup(email, password);
                                 }
                               },
