@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "380878671688",
+    "project_id": "tomodoko-m-9f826",
+    "storage_bucket": "tomodoko-m-9f826.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:380878671688:android:f4fbd08027f738abf4ad7d",
+        "android_client_info": {
+          "package_name": "com.example.tomodoko"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "380878671688-pati9it0udrlru9f93cl57r5er3dlorh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8M-09zyepQFG9O_2RMV-pC3NplP9GDEU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "380878671688-pati9it0udrlru9f93cl57r5er3dlorh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

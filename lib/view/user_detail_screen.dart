@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
+import 'home_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class UserDetailScreen extends StatelessWidget {
+class UserDetailScreen extends StatefulWidget {
   static const id = 'user_detail_screen';
   const UserDetailScreen({Key? key}) : super(key: key);
+
+  @override
+  State<UserDetailScreen> createState() => _UserDetailScreenState();
+}
+
+class _UserDetailScreenState extends State<UserDetailScreen> {
+  final _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -12,6 +21,37 @@ class UserDetailScreen extends StatelessWidget {
           'ユーザー詳細',
           style: TextStyle(fontSize: 18),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await showDialog<AlertDialog>(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('ログアウトしますか？'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          await _auth.signOut();
+                          Navigator.of(context)
+                              .pushReplacementNamed(HomeScreen.id);
+                        },
+                        child: const Text('OK'),
+                      )
+                    ],
+                  );
+                },
+              );
+            },
+          )
+        ],
       ),
       body: SafeArea(
         child: Padding(
