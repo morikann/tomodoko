@@ -31,6 +31,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
   Future<void> addUser(String uid) {
     return _fireStore.collection('users').doc(uid).set({
+      'uid': uid,
       'name': username,
     }).then((value) {
       Navigator.of(context).pushNamedAndRemoveUntil(

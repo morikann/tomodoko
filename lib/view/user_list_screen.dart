@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:tomodoko/model/user_detail_screen_arguments.dart';
 import 'home_screen.dart';
 import '../model/user.dart';
 import 'user_detail_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'user_detail_screen.dart';
 
 class UserListScreen extends StatefulWidget {
   static const id = 'users_screen';
@@ -87,7 +89,13 @@ class _UserListScreenState extends State<UserListScreen> {
                       document.data()! as Map<String, dynamic>;
                   return ListTile(
                     onTap: () {
-                      Navigator.of(context).pushNamed(UserDetailScreen.id);
+                      Navigator.of(context).pushNamed(
+                        UserDetailScreen.id,
+                        arguments: UserDetailScreenArguments(
+                          data['uid'],
+                          data['name'],
+                        ),
+                      );
                     },
                     leading: const Icon(Icons.face),
                     title: Text(data['name']),
