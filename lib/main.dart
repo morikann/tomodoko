@@ -5,6 +5,7 @@ import 'view/login_screen.dart';
 import 'view/user_list_screen.dart';
 import 'view/user_detail_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'model/user_detail_screen_arguments.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +29,21 @@ class Tomodoko extends StatelessWidget {
         SignupScreen.id: (context) => const SignupScreen(),
         LoginScreen.id: (context) => const LoginScreen(),
         UserListScreen.id: (context) => const UserListScreen(),
-        UserDetailScreen.id: (context) => const UserDetailScreen(),
+      },
+      // ModalRoute.of(context)!.settings.arguments as UserDetailScreenArguments;で
+      // 遷移元から遷移先に値を渡せるが、取得できる場所がbuildメソッド内になってしまう。
+      // nameを表示するだけならそれでもいいが、uidはfireStoreとやりとりするためにもプロパティとして
+      // 欲しいのでonGenerateRouteを使う。
+      onGenerateRoute: (settings) {
+        if (settings.name == UserDetailScreen.id) {
+          final args = settings.arguments as UserDetailScreenArguments;
+          return MaterialPageRoute(builder: (context) {
+            return UserDetailScreen(
+              opponentUid: args.uid,
+              opponentName: args.name,
+            );
+          });
+        }
       },
     );
   }

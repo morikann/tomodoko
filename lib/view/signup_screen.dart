@@ -33,6 +33,7 @@ class _SignupScreenState extends State<SignupScreen> {
     return _fireStore.collection('users').doc(uid).set({
       'uid': uid,
       'name': username,
+      'email': email,
     }).then((value) {
       Navigator.of(context).pushNamedAndRemoveUntil(
         UserListScreen.id,
