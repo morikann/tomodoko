@@ -160,12 +160,18 @@ class _LoginScreenState extends State<LoginScreen> {
                               backgroundColor: Colors.purple,
                               textColor: Colors.white,
                             ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context)
-                                    .pushNamed(SignupScreen.id);
-                              },
-                              child: const Text('アカウント登録はこちら'),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context)
+                                      .pushNamed(SignupScreen.id);
+                                },
+                                child: const Text(
+                                  'アカウント登録はこちら',
+                                  style: TextStyle(color: Colors.purple),
+                                ),
+                              ),
                             ),
                           ],
                         ),
