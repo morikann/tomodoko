@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'view/signup_screen.dart';
 import 'view/home_screen.dart';
+import 'view/signup_screen.dart';
+import 'view/welcome_screen.dart';
 import 'view/login_screen.dart';
 import 'view/user_list_screen.dart';
 import 'view/user_detail_screen.dart';
@@ -23,12 +24,13 @@ class Tomodoko extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.purple,
       ),
-      initialRoute: HomeScreen.id,
+      initialRoute: WelcomeScreen.id,
       routes: {
-        HomeScreen.id: (context) => const HomeScreen(),
+        WelcomeScreen.id: (context) => const WelcomeScreen(),
         SignupScreen.id: (context) => const SignupScreen(),
         LoginScreen.id: (context) => const LoginScreen(),
         UserListScreen.id: (context) => const UserListScreen(),
+        HomeScreen.id: (context) => const HomeScreen(),
       },
       // ModalRoute.of(context)!.settings.arguments as UserDetailScreenArguments;で
       // 遷移元から遷移先に値を渡せるが、取得できる場所がbuildメソッド内になってしまう。

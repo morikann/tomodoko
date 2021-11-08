@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tomodoko/model/user_detail_screen_arguments.dart';
-import 'home_screen.dart';
+import 'welcome_screen.dart';
 import 'user_detail_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -60,6 +60,13 @@ class _UserListScreenState extends State<UserListScreen> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    _timer.cancel();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     // TODO: implement initState
     super.initState();
@@ -100,7 +107,7 @@ class _UserListScreenState extends State<UserListScreen> {
                           // ログアウトしたらタイマーをキャンセル
                           _timer.cancel();
                           Navigator.of(context)
-                              .pushReplacementNamed(HomeScreen.id);
+                              .pushReplacementNamed(WelcomeScreen.id);
                         },
                         child: const Text('OK'),
                       )
