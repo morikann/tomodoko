@@ -31,7 +31,9 @@ class _SignupScreenState extends State<SignupScreen> {
 
   Future<void> addUser(String uid) {
     return _fireStore.collection('users').doc(uid).set({
+      'uid': uid,
       'name': username,
+      'email': email,
     }).then((value) {
       Navigator.of(context).pushNamedAndRemoveUntil(
         UserListScreen.id,
@@ -219,11 +221,18 @@ class _SignupScreenState extends State<SignupScreen> {
                                 }
                               },
                             ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pushNamed(LoginScreen.id);
-                              },
-                              child: const Text('ログインはこちら'),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context)
+                                      .pushNamed(LoginScreen.id);
+                                },
+                                child: const Text(
+                                  'ログインはこちら',
+                                  style: TextStyle(color: Colors.purple),
+                                ),
+                              ),
                             ),
                           ],
                         ),
