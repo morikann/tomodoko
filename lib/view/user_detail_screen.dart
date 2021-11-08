@@ -35,37 +35,44 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    // ユーザーのdbの変更を受信し、コントローラのstreamに追加する
-    // 非同期処理の順序が追えないコードになっているので改善の余地あり
-    addStreamToController();
-    setLocation();
+    addMySubscription();
+    addOpponentSubscription();
   }
 
-  void addStreamToController() async {
-    // streamControllerにイベント(stream)を追加中に、新しいイベントを追加するとエラーが生じるので、
-    // 一つの関数にまとめてinitStateで実行する
-    await streamController.addStream(
-        _fireStore.collection('users').doc(_auth.currentUser!.uid).snapshots());
-    await streamController.addStream(
-        _fireStore.collection('users').doc(widget.opponentUid).snapshots());
+  void addMySubscription() {
+    _fireStore
+        .collection('users')
+        .doc(_auth.currentUser!.uid)
+        .snapshots()
+        .listen((e) {
+      myLocation.latitude = e.data()?['latitude'];
+      myLocation.longitude = e.data()?['longitude'];
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        getDistance();
+        getBearing();
+      });
+    });
   }
 
-  Future<void> getOpponentLocation() async {
-    final String _uid = widget.opponentUid;
-    await _fireStore.collection('users').doc(_uid).get().then((snapshot) {
-      opponentLocation.latitude = snapshot.data()?['latitude'];
-      opponentLocation.longitude = snapshot.data()?['longitude'];
-    }).catchError((e) => print(e));
-  }
-
-  Future<void> getMyLocation() async {
-    final String _uid = _auth.currentUser!.uid;
-    await _fireStore.collection('users').doc(_uid).get().then(
-      (snapshot) {
-        myLocation.latitude = snapshot.data()?['latitude'];
-        myLocation.longitude = snapshot.data()?['longitude'];
-      },
-    ).catchError((e) => print(e));
+  void addOpponentSubscription() {
+    _fireStore
+        .collection('users')
+        .doc(widget.opponentUid)
+        .snapshots()
+        .listen((e) {
+      opponentLocation.latitude = e.data()?['latitude'];
+      opponentLocation.longitude = e.data()?['longitude'];
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        getDistance();
+        getBearing();
+      });
+    });
   }
 
   void getDistance() {
@@ -86,20 +93,6 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
       opponentLocation.latitude,
       opponentLocation.longitude,
     );
-  }
-
-  Future<void> setLocation() async {
-    streamController.stream.listen((_) async {
-      await getMyLocation();
-      await getOpponentLocation();
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        getDistance();
-        getBearing();
-      });
-    });
   }
 
   @override
