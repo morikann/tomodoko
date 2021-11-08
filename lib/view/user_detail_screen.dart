@@ -79,7 +79,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   void getDistance() {
     Location location = Location();
     distance = location.calculateDistance(
-      myLocation.longitude,
+      myLocation.latitude,
       myLocation.longitude,
       opponentLocation.latitude,
       opponentLocation.longitude,
@@ -89,7 +89,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   void getBearing() {
     Location location = Location();
     bearing = location.calculateBearing(
-      myLocation.longitude,
+      myLocation.latitude,
       myLocation.longitude,
       opponentLocation.latitude,
       opponentLocation.longitude,

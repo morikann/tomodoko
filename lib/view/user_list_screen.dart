@@ -37,22 +37,26 @@ class _UserListScreenState extends State<UserListScreen> {
     _fireStore.collection('users').doc(_user?.uid).update({
       // 緯度経度の値を10秒毎に変えて詳細ページで距離、方位が変化しているのを
       // わかりやすくするために_countをプラスする
-      'latitude': location.latitude != null
-          ? location.latitude! + _count
-          : location.latitude,
-      'longitude': location.longitude != null
-          ? location.longitude! + _count
-          : location.longitude,
+      // 'latitude': location.latitude != null
+      //     ? location.latitude! + _count
+      //     : location.latitude,
+      // 'longitude': location.longitude != null
+      //     ? location.longitude! + _count
+      //     : location.longitude,
+      'latitude': location.latitude,
+      'longitude': location.longitude,
       // 更新されているか確かめるためにとりあえずusersコレクションに入れておく
       // usersコレクションとlocationsコレクションを分けて、usersコレクションから
       // locationsコレクションを参照するようにした方がいいのかな...？
       'updated_at': DateTime.now(),
     }).then(
       (value) {
-        setState(() {
-          _count += 10;
-        });
+        // setState(() {
+        //   _count += 10;
+        // });
         print('登録できました');
+        print(location.latitude);
+        print(location.longitude);
       },
     ).catchError(
       (e) => print(e),
