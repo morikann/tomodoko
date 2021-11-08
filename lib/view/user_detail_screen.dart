@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -26,7 +27,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   final _auth = FirebaseAuth.instance;
   final _fireStore = FirebaseFirestore.instance;
   String distance = '';
-  String bearing = '';
+  double bearing = 0.0;
   Location myLocation = Location();
   Location opponentLocation = Location();
   final streamController = StreamController();
@@ -151,20 +152,40 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
               const SizedBox(
                 height: 20,
               ),
-              Text(
-                '${distance}m',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 50,
-                  fontWeight: FontWeight.bold,
+              Center(
+                child: RichText(
+                  text: TextSpan(
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 40,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: distance,
+                        style: const TextStyle(
+                            color: Colors.purple,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 50),
+                      ),
+                      const TextSpan(
+                        text: 'm',
+                        style: TextStyle(letterSpacing: 5),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 50),
               SizedBox(
-                child: Image.asset('images/navigation.png'),
+                child: Transform.rotate(
+                  angle: bearing * pi / 180,
+                  child: const Image(
+                    image: AssetImage('images/navigation.png'),
+                    color: Colors.purple,
+                  ),
+                ),
                 height: 200,
               ),
-              Text('方位: $bearing'),
             ],
           ),
         ),

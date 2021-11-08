@@ -1,5 +1,3 @@
-import 'dart:async';
-
 class UserDetailScreenArguments {
   final String uid;
   final String name;
