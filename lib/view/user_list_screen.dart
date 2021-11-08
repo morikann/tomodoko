@@ -24,19 +24,12 @@ class _UserListScreenState extends State<UserListScreen> {
   final _auth = FirebaseAuth.instance;
   final _fireStore = FirebaseFirestore.instance;
   int _count = 0;
+  late Timer _timer;
 
   void getLocation() async {
     final location = Location();
     await location.getCurrentLocation();
     registerLocation(location);
-  }
-
-  void registerLocationPer10Sec() {
-    // 呼び出し時に一回発火して、その後10秒毎に発火
-    getLocation();
-    Timer.periodic(const Duration(seconds: 10), (timer) {
-      getLocation();
-    });
   }
 
   void registerLocation(Location location) {
@@ -60,7 +53,6 @@ class _UserListScreenState extends State<UserListScreen> {
           _count += 10;
         });
         print('登録できました');
-        print(_user?.uid);
       },
     ).catchError(
       (e) => print(e),
@@ -71,7 +63,11 @@ class _UserListScreenState extends State<UserListScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    registerLocationPer10Sec();
+    // 呼び出し時に一回発火して、その後10秒毎に発火
+    getLocation();
+    _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      getLocation();
+    });
   }
 
   @override
@@ -101,6 +97,8 @@ class _UserListScreenState extends State<UserListScreen> {
                       TextButton(
                         onPressed: () async {
                           await _auth.signOut();
+                          // ログアウトしたらタイマーをキャンセル
+                          _timer.cancel();
                           Navigator.of(context)
                               .pushReplacementNamed(HomeScreen.id);
                         },
@@ -141,6 +139,7 @@ class _UserListScreenState extends State<UserListScreen> {
                         arguments: UserDetailScreenArguments(
                           data['uid'],
                           data['name'],
+                          _timer.cancel,
                         ),
                       );
                     },
