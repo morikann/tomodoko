@@ -9,11 +9,13 @@ class UserDetailScreen extends StatefulWidget {
   static const id = 'user_detail_screen';
   final String opponentUid;
   final String opponentName;
+  final Function timerCancel;
 
   const UserDetailScreen({
     Key? key,
     required this.opponentUid,
     required this.opponentName,
+    required this.timerCancel,
   }) : super(key: key);
 
   @override
@@ -27,29 +29,32 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   String bearing = '';
   Location myLocation = Location();
   Location opponentLocation = Location();
+  final streamController = StreamController();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    // Widget Treeに存在しないWidgetのStateオブジェクトに対してsetState()を呼び出したらエラーになる
-    // setState実行前に、Stateオブジェクトのmountedプロパティをチェックすれば、
-    // そのWidgetがWidget Treeに存在しているか分かる
-    // なのでsettingLocationPer10Sec内にある全てのsetStateではmountedプロパティの
-    // 有無をチェックしている
-    setLocationPer10Sec();
+    // ユーザーのdbの変更を受信し、コントローラのstreamに追加する
+    // 非同期処理の順序が追えないコードになっているので改善の余地あり
+    addStreamToController();
+    setLocation();
+  }
+
+  void addStreamToController() async {
+    // streamControllerにイベント(stream)を追加中に、新しいイベントを追加するとエラーが生じるので、
+    // 一つの関数にまとめてinitStateで実行する
+    await streamController.addStream(
+        _fireStore.collection('users').doc(_auth.currentUser!.uid).snapshots());
+    await streamController.addStream(
+        _fireStore.collection('users').doc(widget.opponentUid).snapshots());
   }
 
   Future<void> getOpponentLocation() async {
     final String _uid = widget.opponentUid;
     await _fireStore.collection('users').doc(_uid).get().then((snapshot) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        opponentLocation.latitude = snapshot.data()?['latitude'];
-        opponentLocation.longitude = snapshot.data()?['longitude'];
-      });
+      opponentLocation.latitude = snapshot.data()?['latitude'];
+      opponentLocation.longitude = snapshot.data()?['longitude'];
     }).catchError((e) => print(e));
   }
 
@@ -57,58 +62,43 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
     final String _uid = _auth.currentUser!.uid;
     await _fireStore.collection('users').doc(_uid).get().then(
       (snapshot) {
-        if (!mounted) {
-          return;
-        }
-        setState(() {
-          myLocation.latitude = snapshot.data()?['latitude'];
-          myLocation.longitude = snapshot.data()?['longitude'];
-        });
+        myLocation.latitude = snapshot.data()?['latitude'];
+        myLocation.longitude = snapshot.data()?['longitude'];
       },
     ).catchError((e) => print(e));
   }
 
   void getDistance() {
     Location location = Location();
-    if (!mounted) {
-      return;
-    }
-    setState(() {
-      distance = location.calculateDistance(
-        myLocation.longitude,
-        myLocation.longitude,
-        opponentLocation.latitude,
-        opponentLocation.longitude,
-      );
-    });
+    distance = location.calculateDistance(
+      myLocation.longitude,
+      myLocation.longitude,
+      opponentLocation.latitude,
+      opponentLocation.longitude,
+    );
   }
 
   void getBearing() {
     Location location = Location();
-    if (!mounted) {
-      return;
-    }
-    setState(() {
-      bearing = location.calculateBearing(
-        myLocation.longitude,
-        myLocation.longitude,
-        opponentLocation.latitude,
-        opponentLocation.longitude,
-      );
-    });
+    bearing = location.calculateBearing(
+      myLocation.longitude,
+      myLocation.longitude,
+      opponentLocation.latitude,
+      opponentLocation.longitude,
+    );
   }
 
-  void setLocation() async {
-    await getMyLocation();
-    await getOpponentLocation();
-    getDistance();
-    getBearing();
-  }
-
-  void setLocationPer10Sec() {
-    setLocation();
-    Timer.periodic(const Duration(seconds: 10), (timer) {
-      setLocation();
+  Future<void> setLocation() async {
+    streamController.stream.listen((_) async {
+      await getMyLocation();
+      await getOpponentLocation();
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        getDistance();
+        getBearing();
+      });
     });
   }
 
@@ -139,6 +129,8 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                       TextButton(
                         onPressed: () async {
                           await _auth.signOut();
+                          // ログアウトしたらタイマーをキャンセル
+                          widget.timerCancel();
                           Navigator.of(context)
                               .pushReplacementNamed(HomeScreen.id);
                         },
