@@ -6,6 +6,7 @@ import 'user_detail_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../model/location.dart';
+import 'package:intl/intl.dart';
 
 class UserListScreen extends StatefulWidget {
   static const id = 'users_screen';
@@ -23,7 +24,6 @@ class _UserListScreenState extends State<UserListScreen> {
       .snapshots();
   final _auth = FirebaseAuth.instance;
   final _fireStore = FirebaseFirestore.instance;
-  int _count = 0;
   late Timer _timer;
 
   void getLocation() async {
@@ -33,34 +33,31 @@ class _UserListScreenState extends State<UserListScreen> {
   }
 
   void registerLocation(Location location) {
-    final User? _user = _auth.currentUser;
-    _fireStore.collection('users').doc(_user?.uid).update({
-      // 緯度経度の値を10秒毎に変えて詳細ページで距離、方位が変化しているのを
-      // わかりやすくするために_countをプラスする
-      // 'latitude': location.latitude != null
-      //     ? location.latitude! + _count
-      //     : location.latitude,
-      // 'longitude': location.longitude != null
-      //     ? location.longitude! + _count
-      //     : location.longitude,
+    // 緯度か経度が登録されてなかったら更新しない
+    if (location.latitude == null || location.longitude == null) {
+      return;
+    }
+    final _uid = _auth.currentUser!.uid;
+    _fireStore.collection('users').doc(_uid).update({
       'latitude': location.latitude,
       'longitude': location.longitude,
-      // 更新されているか確かめるためにとりあえずusersコレクションに入れておく
-      // usersコレクションとlocationsコレクションを分けて、usersコレクションから
-      // locationsコレクションを参照するようにした方がいいのかな...？
       'updated_at': DateTime.now(),
     }).then(
       (value) {
-        // setState(() {
-        //   _count += 10;
-        // });
         print('登録できました');
-        print(location.latitude);
-        print(location.longitude);
       },
     ).catchError(
       (e) => print(e),
     );
+  }
+
+  String updateTime(Timestamp? date) {
+    if (date == null) {
+      return 'Location not registered';
+    }
+    final dateTime = date.toDate();
+    final dateFormat = DateFormat('y/M/d HH:mm');
+    return dateFormat.format(dateTime);
   }
 
   @override
@@ -175,7 +172,19 @@ class _UserListScreenState extends State<UserListScreen> {
                                 backgroundImage: NetworkImage(data['imgURL']),
                               ),
                             ),
-                      title: Text(data['name']),
+                      title: Text(
+                        data['name'],
+                        style: const TextStyle(
+                          fontSize: 18,
+                        ),
+                      ),
+                      dense: true,
+                      subtitle: Text(
+                        updateTime(data['updated_at']),
+                        style: const TextStyle(
+                          fontSize: 12,
+                        ),
+                      ),
                       trailing: const Icon(Icons.arrow_right),
                     ),
                   );
