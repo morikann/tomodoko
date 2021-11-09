@@ -64,6 +64,21 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
     });
   }
 
+  ImageProvider _imageProvider(String imgPath) {
+    // 画像の選択があったら表示
+    if (_imageFile != null) {
+      return FileImage(_imageFile!);
+    }
+
+    // cloud_storageに画像があったら表示
+    if (imgPath.isNotEmpty) {
+      return NetworkImage(imgPath);
+    }
+
+    // 何もなかったらデフォルト画像
+    return const AssetImage('images/default.png');
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -119,16 +134,34 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                CircleAvatar(
-                  backgroundColor: Colors.purple,
-                  radius: 120,
-                  child: CircleAvatar(
-                    backgroundImage: _imageFile == null
-                        ? const AssetImage('images/default.png')
-                        : FileImage(_imageFile!) as ImageProvider,
-                    radius: 118,
-                    backgroundColor: Colors.white,
-                  ),
+                FutureBuilder<DocumentSnapshot>(
+                  future: FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(_auth.currentUser!.uid)
+                      .get(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return const Text('Something went wrong');
+                    }
+
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      Map<String, dynamic> data =
+                          snapshot.data!.data() as Map<String, dynamic>;
+                      return CircleAvatar(
+                        backgroundColor: Colors.purple,
+                        radius: 120,
+                        child: CircleAvatar(
+                          backgroundImage: _imageProvider(data['imgURL']),
+                          radius: 118,
+                          backgroundColor: Colors.white,
+                        ),
+                      );
+                    }
+
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  },
                 ),
                 const SizedBox(height: 30),
                 const Text(
