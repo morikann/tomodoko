@@ -86,7 +86,7 @@ class _UserListScreenState extends State<UserListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'ユーザー一覧',
+          'ホーム',
           style: TextStyle(fontSize: 18),
         ),
         actions: [
