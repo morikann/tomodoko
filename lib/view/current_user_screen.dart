@@ -49,7 +49,6 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
     if (_imageFile == null) {
       return;
     }
-
     final String _uid = _auth.currentUser!.uid;
 
     // storageにアップロード

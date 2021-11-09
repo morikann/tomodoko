@@ -143,20 +143,41 @@ class _UserListScreenState extends State<UserListScreen> {
                 (DocumentSnapshot document) {
                   Map<String, dynamic> data =
                       document.data()! as Map<String, dynamic>;
-                  return ListTile(
-                    onTap: () {
-                      Navigator.of(context).pushNamed(
-                        UserDetailScreen.id,
-                        arguments: UserDetailScreenArguments(
-                          data['uid'],
-                          data['name'],
-                          _timer.cancel,
-                        ),
-                      );
-                    },
-                    leading: const Icon(Icons.face),
-                    title: Text(data['name']),
-                    trailing: const Icon(Icons.arrow_right),
+                  return Card(
+                    elevation: 2,
+                    child: ListTile(
+                      onTap: () {
+                        Navigator.of(context).pushNamed(
+                          UserDetailScreen.id,
+                          arguments: UserDetailScreenArguments(
+                            data['uid'],
+                            data['name'],
+                            _timer.cancel,
+                          ),
+                        );
+                      },
+                      leading: data['imgURL'] == null
+                          ? CircleAvatar(
+                              backgroundColor: Colors.purple.shade200,
+                              radius: 20,
+                              child: const CircleAvatar(
+                                radius: 19,
+                                backgroundImage:
+                                    AssetImage('images/default.png'),
+                                backgroundColor: Colors.white,
+                              ),
+                            )
+                          : CircleAvatar(
+                              backgroundColor: Colors.purple.shade200,
+                              radius: 20,
+                              child: CircleAvatar(
+                                radius: 19,
+                                backgroundImage: NetworkImage(data['imgURL']),
+                              ),
+                            ),
+                      title: Text(data['name']),
+                      trailing: const Icon(Icons.arrow_right),
+                    ),
                   );
                 },
               ).toList(),
