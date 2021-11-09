@@ -147,14 +147,27 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
                     if (snapshot.connectionState == ConnectionState.done) {
                       Map<String, dynamic> data =
                           snapshot.data!.data() as Map<String, dynamic>;
-                      return CircleAvatar(
-                        backgroundColor: Colors.purple,
-                        radius: 120,
-                        child: CircleAvatar(
-                          backgroundImage: _imageProvider(data['imgURL']),
-                          radius: 118,
-                          backgroundColor: Colors.white,
-                        ),
+                      return Column(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: Colors.purple,
+                            radius: 120,
+                            child: CircleAvatar(
+                              backgroundImage: _imageProvider(data['imgURL']),
+                              radius: 118,
+                              backgroundColor: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 30),
+                          Text(
+                            data['name'],
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 30,
+                            ),
+                          ),
+                        ],
                       );
                     }
 
@@ -162,15 +175,6 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
                       child: CircularProgressIndicator(),
                     );
                   },
-                ),
-                const SizedBox(height: 30),
-                const Text(
-                  '森 寛太',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 30,
-                  ),
                 ),
                 const SizedBox(
                   height: 30,
