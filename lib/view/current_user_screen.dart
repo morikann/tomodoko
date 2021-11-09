@@ -64,14 +64,14 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
     });
   }
 
-  ImageProvider _imageProvider(String imgPath) {
+  ImageProvider _imageProvider(imgPath) {
     // 画像の選択があったら表示
     if (_imageFile != null) {
       return FileImage(_imageFile!);
     }
 
     // cloud_storageに画像があったら表示
-    if (imgPath.isNotEmpty) {
+    if (imgPath != null) {
       return NetworkImage(imgPath);
     }
 
@@ -160,7 +160,7 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
                           ),
                           const SizedBox(height: 30),
                           Text(
-                            data['name'],
+                            data['name'] == null ? 'fa' : data['name'],
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
