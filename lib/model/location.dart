@@ -25,12 +25,12 @@ class Location {
     }
   }
 
-  String calculateBearing(la1, lo1, la2, lo2) {
+  double calculateBearing(la1, lo1, la2, lo2) {
     try {
       double bearing = Geolocator.bearingBetween(la1, lo1, la2, lo2);
-      return bearing.round().toString();
+      return bearing;
     } catch (e) {
-      return '---';
+      return 0;
     }
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,11 +10,13 @@ class UserDetailScreen extends StatefulWidget {
   static const id = 'user_detail_screen';
   final String opponentUid;
   final String opponentName;
+  final Function timerCancel;
 
   const UserDetailScreen({
     Key? key,
     required this.opponentUid,
     required this.opponentName,
+    required this.timerCancel,
   }) : super(key: key);
 
   @override
@@ -24,92 +27,73 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   final _auth = FirebaseAuth.instance;
   final _fireStore = FirebaseFirestore.instance;
   String distance = '';
-  String bearing = '';
+  double bearing = 0.0;
   Location myLocation = Location();
   Location opponentLocation = Location();
+  final streamController = StreamController();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    // Widget Treeに存在しないWidgetのStateオブジェクトに対してsetState()を呼び出したらエラーになる
-    // setState実行前に、Stateオブジェクトのmountedプロパティをチェックすれば、
-    // そのWidgetがWidget Treeに存在しているか分かる
-    // なのでsettingLocationPer10Sec内にある全てのsetStateではmountedプロパティの
-    // 有無をチェックしている
-    setLocationPer10Sec();
+    addMySubscription();
+    addOpponentSubscription();
   }
 
-  Future<void> getOpponentLocation() async {
-    final String _uid = widget.opponentUid;
-    await _fireStore.collection('users').doc(_uid).get().then((snapshot) {
+  void addMySubscription() {
+    _fireStore
+        .collection('users')
+        .doc(_auth.currentUser!.uid)
+        .snapshots()
+        .listen((e) {
+      myLocation.latitude = e.data()?['latitude'];
+      myLocation.longitude = e.data()?['longitude'];
       if (!mounted) {
         return;
       }
       setState(() {
-        opponentLocation.latitude = snapshot.data()?['latitude'];
-        opponentLocation.longitude = snapshot.data()?['longitude'];
+        getDistance();
+        getBearing();
       });
-    }).catchError((e) => print(e));
+    });
   }
 
-  Future<void> getMyLocation() async {
-    final String _uid = _auth.currentUser!.uid;
-    await _fireStore.collection('users').doc(_uid).get().then(
-      (snapshot) {
-        if (!mounted) {
-          return;
-        }
-        setState(() {
-          myLocation.latitude = snapshot.data()?['latitude'];
-          myLocation.longitude = snapshot.data()?['longitude'];
-        });
-      },
-    ).catchError((e) => print(e));
+  void addOpponentSubscription() {
+    _fireStore
+        .collection('users')
+        .doc(widget.opponentUid)
+        .snapshots()
+        .listen((e) {
+      opponentLocation.latitude = e.data()?['latitude'];
+      opponentLocation.longitude = e.data()?['longitude'];
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        getDistance();
+        getBearing();
+      });
+    });
   }
 
   void getDistance() {
     Location location = Location();
-    if (!mounted) {
-      return;
-    }
-    setState(() {
-      distance = location.calculateDistance(
-        myLocation.longitude,
-        myLocation.longitude,
-        opponentLocation.latitude,
-        opponentLocation.longitude,
-      );
-    });
+    distance = location.calculateDistance(
+      myLocation.longitude,
+      myLocation.longitude,
+      opponentLocation.latitude,
+      opponentLocation.longitude,
+    );
   }
 
   void getBearing() {
     Location location = Location();
-    if (!mounted) {
-      return;
-    }
-    setState(() {
-      bearing = location.calculateBearing(
-        myLocation.longitude,
-        myLocation.longitude,
-        opponentLocation.latitude,
-        opponentLocation.longitude,
-      );
-    });
-  }
-
-  void setLocation() async {
-    await getMyLocation();
-    await getOpponentLocation();
-    getDistance();
-    getBearing();
-  }
-
-  void setLocationPer10Sec() {
-    setLocation();
-    Timer.periodic(const Duration(seconds: 10), (timer) {
-      setLocation();
-    });
+    bearing = location.calculateBearing(
+      myLocation.longitude,
+      myLocation.longitude,
+      opponentLocation.latitude,
+      opponentLocation.longitude,
+    );
   }
 
   @override
@@ -139,6 +123,8 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                       TextButton(
                         onPressed: () async {
                           await _auth.signOut();
+                          // ログアウトしたらタイマーをキャンセル
+                          widget.timerCancel();
                           Navigator.of(context)
                               .pushReplacementNamed(HomeScreen.id);
                         },
@@ -166,20 +152,40 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
               const SizedBox(
                 height: 20,
               ),
-              Text(
-                '${distance}m',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 50,
-                  fontWeight: FontWeight.bold,
+              Center(
+                child: RichText(
+                  text: TextSpan(
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 40,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: distance,
+                        style: const TextStyle(
+                            color: Colors.purple,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 50),
+                      ),
+                      const TextSpan(
+                        text: 'm',
+                        style: TextStyle(letterSpacing: 5),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 50),
               SizedBox(
-                child: Image.asset('images/navigation.png'),
+                child: Transform.rotate(
+                  angle: bearing * pi / 180,
+                  child: const Image(
+                    image: AssetImage('images/navigation.png'),
+                    color: Colors.purple,
+                  ),
+                ),
                 height: 200,
               ),
-              Text('方位: $bearing'),
             ],
           ),
         ),
