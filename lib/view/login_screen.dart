@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tomodoko/view/home_screen.dart';
 import 'package:tomodoko/view/user_list_screen.dart';
 import '../component/common_button.dart';
 import 'signup_screen.dart';
@@ -28,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
       Navigator.of(context).pushNamedAndRemoveUntil(
-        UserListScreen.id,
+        HomeScreen.id,
         (route) => false,
       );
     } on FirebaseAuthException catch (e) {

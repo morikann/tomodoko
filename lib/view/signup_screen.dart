@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tomodoko/component/common_button.dart';
+import 'package:tomodoko/view/home_screen.dart';
 import 'login_screen.dart';
-import 'user_list_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
@@ -36,7 +36,7 @@ class _SignupScreenState extends State<SignupScreen> {
       'email': email,
     }).then((value) {
       Navigator.of(context).pushNamedAndRemoveUntil(
-        UserListScreen.id,
+        HomeScreen.id,
         (route) => false,
       );
       setState(() {
