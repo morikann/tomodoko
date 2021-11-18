@@ -5,6 +5,7 @@ import 'welcome_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../model/location.dart';
+import 'package:flutter_compass/flutter_compass.dart';
 
 class UserDetailScreen extends StatefulWidget {
   static const id = 'user_detail_screen';
@@ -176,20 +177,47 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                 ),
               ),
               const SizedBox(height: 50),
-              SizedBox(
-                child: Transform.rotate(
-                  angle: bearing * pi / 180,
-                  child: const Image(
-                    image: AssetImage('images/navigation.png'),
-                    color: Colors.purple,
-                  ),
-                ),
-                height: 200,
-              ),
+              _buildCompass(bearing),
             ],
           ),
         ),
       ),
     );
   }
+}
+
+Widget _buildCompass(double bearing) {
+  return StreamBuilder<CompassEvent>(
+    stream: FlutterCompass.events,
+    builder: (context, snapshot) {
+      if (snapshot.hasError) {
+        return Text('Error reading heading: ${snapshot.error}');
+      }
+
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      }
+
+      double? direction = snapshot.data!.heading;
+
+      if (direction == null) {
+        return const Center(
+          child: Text("Device dose not have sensors"),
+        );
+      }
+
+      return SizedBox(
+        child: Transform.rotate(
+          angle: (direction - bearing) * (pi / 180) * -1,
+          child: const Image(
+            image: AssetImage('images/navigation.png'),
+            color: Colors.purple,
+          ),
+        ),
+        height: 200,
+      );
+    },
+  );
 }
