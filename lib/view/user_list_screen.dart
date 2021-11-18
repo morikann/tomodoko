@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tomodoko/model/user_detail_screen_arguments.dart';
-import 'welcome_screen.dart';
 import 'user_detail_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -25,6 +24,9 @@ class _UserListScreenState extends State<UserListScreen> {
   final _auth = FirebaseAuth.instance;
   final _fireStore = FirebaseFirestore.instance;
   late Timer _timer;
+  Icon customIcon = const Icon(Icons.search);
+  Widget customSearchBar = const Text('ホーム', style: TextStyle(fontSize: 18));
+  String? searchWord;
 
   void getLocation() async {
     final location = Location();
@@ -82,47 +84,63 @@ class _UserListScreenState extends State<UserListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'ホーム',
-          style: TextStyle(fontSize: 18),
-        ),
+        title: customSearchBar,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await showDialog<AlertDialog>(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text('ログアウトしますか？'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('Cancel'),
+            onPressed: () {
+              setState(() {
+                if (customIcon.icon == Icons.search) {
+                  customIcon = const Icon(Icons.cancel);
+                  customSearchBar = ListTile(
+                    leading: const Icon(
+                      Icons.search,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                    title: TextField(
+                      decoration: const InputDecoration(
+                        hintText: 'ユーザー検索',
+                        hintStyle: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 18,
+                        ),
+                        border: InputBorder.none,
                       ),
-                      TextButton(
-                        onPressed: () async {
-                          await _auth.signOut();
-                          // ログアウトしたらタイマーをキャンセル
-                          _timer.cancel();
-                          Navigator.of(context)
-                              .pushReplacementNamed(WelcomeScreen.id);
-                        },
-                        child: const Text('OK'),
-                      )
-                    ],
+                      style: const TextStyle(
+                        color: Colors.white,
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          searchWord = value;
+                        });
+                      },
+                    ),
                   );
-                },
-              );
+                } else {
+                  setState(() {
+                    searchWord = '';
+                  });
+                  customIcon = const Icon(Icons.search);
+                  customSearchBar = const Text(
+                    'ホーム',
+                    style: TextStyle(fontSize: 18),
+                  );
+                }
+              });
             },
+            icon: customIcon,
           )
         ],
       ),
       body: SafeArea(
         child: StreamBuilder<QuerySnapshot>(
-          stream: _usersStream,
+          stream: (searchWord != '' && searchWord != null)
+              ? FirebaseFirestore.instance // searchWordから始まる文字の検索(LIKE検索っぽい)
+                  .collection('users')
+                  .orderBy('name')
+                  .startAt([searchWord]).endAt(
+                      ['$searchWord\uf8ff']).snapshots()
+              : _usersStream,
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.hasError) {
