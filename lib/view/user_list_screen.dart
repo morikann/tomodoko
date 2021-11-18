@@ -57,7 +57,7 @@ class _UserListScreenState extends State<UserListScreen> {
     }
     final dateTime = date.toDate();
     final dateFormat = DateFormat('y/M/d HH:mm');
-    return dateFormat.format(dateTime);
+    return "更新日: ${dateFormat.format(dateTime)}";
   }
 
   @override
