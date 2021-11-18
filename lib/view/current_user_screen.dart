@@ -150,7 +150,7 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
                       return Column(
                         children: [
                           CircleAvatar(
-                            backgroundColor: Colors.purple,
+                            backgroundColor: Colors.blue,
                             radius: 120,
                             child: CircleAvatar(
                               backgroundImage: _imageProvider(data['imgURL']),
@@ -160,7 +160,7 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
                           ),
                           const SizedBox(height: 30),
                           Text(
-                            data['name'] == null ? 'fa' : data['name'],
+                            data['name'] ?? '---',
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
@@ -185,7 +185,7 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
                     FloatingActionButton(
                       shape: const CircleBorder(
                         side: BorderSide(
-                          color: Colors.purple,
+                          color: Colors.blue,
                         ),
                       ),
                       tooltip: '写真を撮る',
@@ -193,13 +193,13 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
                       onPressed: getImageFromCamera,
                       child: const Icon(
                         Icons.add_a_photo,
-                        color: Colors.purple,
+                        color: Colors.blue,
                       ),
                     ),
                     FloatingActionButton(
                       shape: const CircleBorder(
                         side: BorderSide(
-                          color: Colors.purple,
+                          color: Colors.blue,
                         ),
                       ),
                       tooltip: '画像を選択',
@@ -207,7 +207,7 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
                       onPressed: getImageFromGallery,
                       child: const Icon(
                         Icons.image,
-                        color: Colors.purple,
+                        color: Colors.blue,
                       ),
                     )
                   ],

@@ -25,7 +25,7 @@ class WelcomeScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 54.0,
                         fontWeight: FontWeight.bold,
-                        color: Colors.purple,
+                        color: Colors.blue,
                         fontFamily: 'FjallaOne',
                         letterSpacing: 3.0,
                       ),
@@ -48,7 +48,7 @@ class WelcomeScreen extends StatelessWidget {
                       onPressed: () {
                         Navigator.of(context).pushNamed(SignupScreen.id);
                       },
-                      textColor: Colors.purple,
+                      textColor: Colors.blue,
                       backgroundColor: Colors.white,
                     ),
                     CommonButton(
@@ -57,7 +57,7 @@ class WelcomeScreen extends StatelessWidget {
                         Navigator.of(context).pushNamed(LoginScreen.id);
                       },
                       textColor: Colors.white,
-                      backgroundColor: Colors.purple,
+                      backgroundColor: Colors.blue,
                     ),
                   ],
                 ),

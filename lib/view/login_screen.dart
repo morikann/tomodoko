@@ -158,7 +158,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   });
                                 }
                               },
-                              backgroundColor: Colors.purple,
+                              backgroundColor: Colors.blue,
                               textColor: Colors.white,
                             ),
                             Padding(
@@ -170,7 +170,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 },
                                 child: const Text(
                                   'アカウント登録はこちら',
-                                  style: TextStyle(color: Colors.purple),
+                                  style: TextStyle(color: Colors.blue),
                                 ),
                               ),
                             ),

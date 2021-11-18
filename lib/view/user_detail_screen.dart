@@ -164,7 +164,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                       TextSpan(
                         text: distance,
                         style: const TextStyle(
-                            color: Colors.purple,
+                            color: Colors.blue,
                             fontWeight: FontWeight.bold,
                             fontSize: 50),
                       ),
@@ -213,7 +213,7 @@ Widget _buildCompass(double bearing) {
           angle: (direction - bearing) * (pi / 180) * -1,
           child: const Image(
             image: AssetImage('images/navigation.png'),
-            color: Colors.purple,
+            color: Colors.blue,
           ),
         ),
         height: 200,

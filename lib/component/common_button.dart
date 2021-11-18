@@ -22,7 +22,7 @@ class CommonButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           primary: backgroundColor,
           side: BorderSide(
-            color: textColor,
+            color: textColor == Colors.white ? Colors.transparent : textColor,
           ),
         ),
         onPressed: onPressed,

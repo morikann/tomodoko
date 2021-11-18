@@ -209,7 +209,7 @@ class _SignupScreenState extends State<SignupScreen> {
                             CommonButton(
                               name: '登録',
                               textColor: Colors.white,
-                              backgroundColor: Colors.purple,
+                              backgroundColor: Colors.blue,
                               onPressed: () async {
                                 _formKey.currentState!.save();
                                 await checkNameExists(username);
@@ -230,7 +230,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                 },
                                 child: const Text(
                                   'ログインはこちら',
-                                  style: TextStyle(color: Colors.purple),
+                                  style: TextStyle(color: Colors.blue),
                                 ),
                               ),
                             ),
