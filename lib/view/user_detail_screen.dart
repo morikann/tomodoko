@@ -142,19 +142,20 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                '${widget.opponentName}との距離は...',
-                style: const TextStyle(fontSize: 20),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Center(
-                child: RichText(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildCompass(bearing),
+                const SizedBox(height: 50),
+                Text(
+                  '${widget.opponentName}との距離は...',
+                  style: const TextStyle(fontSize: 20),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                RichText(
                   text: TextSpan(
                     style: const TextStyle(
                       color: Colors.black,
@@ -175,10 +176,8 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 50),
-              _buildCompass(bearing),
-            ],
+              ],
+            ),
           ),
         ),
       ),
