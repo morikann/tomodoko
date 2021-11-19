@@ -51,6 +51,9 @@ class WelcomeScreen extends StatelessWidget {
                       textColor: Colors.blue,
                       backgroundColor: Colors.white,
                     ),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     CommonButton(
                       name: 'ログイン',
                       onPressed: () {

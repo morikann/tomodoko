@@ -172,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 textColor: Colors.white,
                               ),
                               Padding(
-                                padding: const EdgeInsets.only(top: 8),
+                                padding: const EdgeInsets.only(top: 10),
                                 child: GestureDetector(
                                   onTap: () {
                                     Navigator.of(context)
