@@ -196,7 +196,11 @@ class _SignupScreenState extends State<SignupScreen> {
                               },
                               controller: _nameController,
                               decoration: const InputDecoration(
-                                labelText: 'username',
+                                helperText: '*必須',
+                                helperStyle: TextStyle(
+                                  color: Colors.red,
+                                ),
+                                labelText: 'ユーザー名',
                               ),
                             ),
                             // email field
@@ -265,7 +269,11 @@ class _SignupScreenState extends State<SignupScreen> {
       },
       controller: _passwordController,
       decoration: const InputDecoration(
-        labelText: 'password',
+        helperText: '*必須',
+        helperStyle: TextStyle(
+          color: Colors.red,
+        ),
+        labelText: 'パスワード',
       ),
     );
   }
@@ -291,7 +299,11 @@ class _SignupScreenState extends State<SignupScreen> {
       },
       controller: _emailController,
       decoration: const InputDecoration(
-        labelText: 'email',
+        helperText: '*必須',
+        helperStyle: TextStyle(
+          color: Colors.red,
+        ),
+        labelText: 'メールアドレス',
       ),
     );
   }

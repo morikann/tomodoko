@@ -128,7 +128,11 @@ class _LoginScreenState extends State<LoginScreen> {
                               },
                               controller: _emailController,
                               decoration: const InputDecoration(
-                                labelText: 'email',
+                                helperText: '*必須',
+                                helperStyle: TextStyle(
+                                  color: Colors.red,
+                                ),
+                                labelText: 'メールアドレス',
                               ),
                             ),
                             TextFormField(
@@ -140,7 +144,11 @@ class _LoginScreenState extends State<LoginScreen> {
                               },
                               controller: _passwordController,
                               decoration: const InputDecoration(
-                                labelText: 'password',
+                                helperText: '*必須',
+                                helperStyle: TextStyle(
+                                  color: Colors.red,
+                                ),
+                                labelText: 'パスワード',
                               ),
                             ),
                             const SizedBox(height: 30),
