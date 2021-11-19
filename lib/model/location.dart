@@ -16,12 +16,12 @@ class Location {
     }
   }
 
-  String calculateDistance(la1, lo1, la2, lo2) {
+  double? calculateDistance(la1, lo1, la2, lo2) {
     try {
       double distance = Geolocator.distanceBetween(la1, lo1, la2, lo2);
-      return distance.round().toString();
+      return distance;
     } catch (e) {
-      return '---';
+      return null;
     }
   }
 
