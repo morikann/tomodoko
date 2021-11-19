@@ -129,9 +129,9 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
         inAsyncCall: _showSpinner,
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30),
+            padding: const EdgeInsets.only(top: 50, right: 30, left: 30),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              // mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 FutureBuilder<DocumentSnapshot>(
