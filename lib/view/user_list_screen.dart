@@ -91,23 +91,25 @@ class _UserListScreenState extends State<UserListScreen> {
               setState(() {
                 if (customIcon.icon == Icons.search) {
                   customIcon = const Icon(Icons.cancel);
-                  customSearchBar = ListTile(
-                    leading: const Icon(
-                      Icons.search,
+                  customSearchBar = Container(
+                    height: 40,
+                    decoration: BoxDecoration(
                       color: Colors.white,
-                      size: 28,
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    title: TextField(
+                    child: TextField(
                       decoration: const InputDecoration(
+                        // 無理矢理paddingをつけて高さを調整しているが、他に方法はないのか...
+                        contentPadding: EdgeInsets.only(top: 5),
+                        prefixIcon: Icon(Icons.search),
                         hintText: 'ユーザー検索',
                         hintStyle: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 18,
+                          color: Colors.grey,
                         ),
                         border: InputBorder.none,
                       ),
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                       ),
                       onChanged: (value) {
                         setState(() {
