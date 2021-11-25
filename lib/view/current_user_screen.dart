@@ -1,10 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'user_edit_screen.dart';
 import 'welcome_screen.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 class CurrentUserScreen extends StatefulWidget {
@@ -17,52 +16,7 @@ class CurrentUserScreen extends StatefulWidget {
 class _CurrentUserScreenState extends State<CurrentUserScreen> {
   final _auth = FirebaseAuth.instance;
   File? _imageFile;
-  final ImagePicker _picker = ImagePicker();
-  bool _showSpinner = false;
-
-  Future<void> getImageFromCamera() async {
-    final XFile? pickedFile =
-        await _picker.pickImage(source: ImageSource.camera);
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path);
-      });
-    } else {
-      print('no camera image selected');
-    }
-  }
-
-  Future<void> getImageFromGallery() async {
-    final XFile? pickedFile =
-        await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path);
-      });
-    } else {
-      print('no gallery image selected');
-    }
-  }
-
-  Future saveImage() async {
-    // 画像が選択されていなかったら早期リターン
-    if (_imageFile == null) {
-      return;
-    }
-    final String _uid = _auth.currentUser!.uid;
-
-    // storageにアップロード
-    final uploadTask =
-        await FirebaseStorage.instance.ref('users/$_uid').putFile(_imageFile!);
-
-    // storageに保存した画像のURLを取得
-    final imgURL = await uploadTask.ref.getDownloadURL();
-
-    // 保存した画像パスをfireStoreに追加
-    await FirebaseFirestore.instance.collection('users').doc(_uid).update({
-      'imgURL': imgURL,
-    });
-  }
+  bool showSpinner = false;
 
   ImageProvider _imageProvider(imgPath) {
     // 画像の選択があったら表示
@@ -126,12 +80,11 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
         ],
       ),
       body: ModalProgressHUD(
-        inAsyncCall: _showSpinner,
+        inAsyncCall: showSpinner,
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30),
+            padding: const EdgeInsets.only(top: 50, right: 30, left: 30),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 FutureBuilder<DocumentSnapshot>(
@@ -160,7 +113,7 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
                           ),
                           const SizedBox(height: 30),
                           Text(
-                            data['name'] == null ? 'fa' : data['name'],
+                            data['name'] ?? '',
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
@@ -179,72 +132,32 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
                 const SizedBox(
                   height: 30,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    FloatingActionButton(
-                      shape: const CircleBorder(
-                        side: BorderSide(
-                          color: Colors.purple,
-                        ),
-                      ),
-                      tooltip: '写真を撮る',
-                      backgroundColor: Colors.white,
-                      onPressed: getImageFromCamera,
-                      child: const Icon(
-                        Icons.add_a_photo,
-                        color: Colors.purple,
+                SizedBox(
+                  height: 45,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.grey.shade300,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                    FloatingActionButton(
-                      shape: const CircleBorder(
-                        side: BorderSide(
-                          color: Colors.purple,
-                        ),
+                    onPressed: () {
+                      Navigator.of(context).pushNamed(UserEditScreen.id).then(
+                            (_) => setState(() {}),
+                          ); // 遷移先からpopした際にstateが更新されるようにするため、thenでつなぐ。
+                    },
+                    icon: const Icon(
+                      Icons.edit,
+                      color: Colors.black,
+                    ),
+                    label: const Text(
+                      'プロフィールを編集',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
                       ),
-                      tooltip: '画像を選択',
-                      backgroundColor: Colors.white,
-                      onPressed: getImageFromGallery,
-                      child: const Icon(
-                        Icons.image,
-                        color: Colors.purple,
-                      ),
-                    )
-                  ],
-                ),
-                const SizedBox(height: 50),
-                ElevatedButton(
-                  onPressed: () async {
-                    try {
-                      setState(() {
-                        _showSpinner = true;
-                      });
-                      await saveImage();
-
-                      if (_imageFile == null) {
-                        return;
-                      }
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          backgroundColor: Colors.green,
-                          content: Text('画像を保存しました'),
-                        ),
-                      );
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          backgroundColor: Colors.red,
-                          content: Text('予期せぬエラーが発生しました: $e'),
-                        ),
-                      );
-                    } finally {
-                      setState(() {
-                        _showSpinner = false;
-                      });
-                    }
-                  },
-                  child: const Text('保存'),
+                    ),
+                  ),
                 ),
               ],
             ),
