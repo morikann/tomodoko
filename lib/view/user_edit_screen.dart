@@ -220,7 +220,7 @@ class _UserEditScreenState extends State<UserEditScreen> {
                         return Column(
                           children: [
                             CircleAvatar(
-                              backgroundColor: Colors.purple,
+                              backgroundColor: Colors.blue,
                               radius: 110,
                               child: CircleAvatar(
                                 backgroundImage: _imageProvider(data['imgURL']),
