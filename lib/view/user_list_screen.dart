@@ -59,7 +59,7 @@ class _UserListScreenState extends State<UserListScreen> {
     }
     final dateTime = date.toDate();
     final dateFormat = DateFormat('y/M/d HH:mm');
-    return dateFormat.format(dateTime);
+    return "更新日: ${dateFormat.format(dateTime)}";
   }
 
   @override
@@ -91,23 +91,28 @@ class _UserListScreenState extends State<UserListScreen> {
               setState(() {
                 if (customIcon.icon == Icons.search) {
                   customIcon = const Icon(Icons.cancel);
-                  customSearchBar = ListTile(
-                    leading: const Icon(
-                      Icons.search,
+                  customSearchBar = Container(
+                    height: 40,
+                    decoration: BoxDecoration(
                       color: Colors.white,
-                      size: 28,
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    title: TextField(
+                    child: TextField(
+                      textAlignVertical: TextAlignVertical.center,
                       decoration: const InputDecoration(
+                        // 無理矢理paddingをつけて高さを調整しているが、他に方法はないのか...
+                        // contentPadding: EdgeInsets.only(top: 5),
+                        // -> prefixIconが設定れている時は、verticalAlignとisCollapsedを設定したらできた
+                        prefixIcon: Icon(Icons.search),
                         hintText: 'ユーザー検索',
                         hintStyle: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 18,
+                          color: Colors.grey,
                         ),
                         border: InputBorder.none,
+                        isCollapsed: true,
                       ),
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                       ),
                       onChanged: (value) {
                         setState(() {
@@ -173,7 +178,7 @@ class _UserListScreenState extends State<UserListScreen> {
                       },
                       leading: data['imgURL'] == null
                           ? CircleAvatar(
-                              backgroundColor: Colors.purple.shade200,
+                              backgroundColor: Colors.blue.shade200,
                               radius: 20,
                               child: const CircleAvatar(
                                 radius: 19,
@@ -183,7 +188,7 @@ class _UserListScreenState extends State<UserListScreen> {
                               ),
                             )
                           : CircleAvatar(
-                              backgroundColor: Colors.purple.shade200,
+                              backgroundColor: Colors.blue.shade200,
                               radius: 20,
                               child: CircleAvatar(
                                 radius: 19,

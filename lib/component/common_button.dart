@@ -18,11 +18,15 @@ class CommonButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
+      height: 45,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           primary: backgroundColor,
           side: BorderSide(
-            color: textColor,
+            color: textColor == Colors.white ? Colors.transparent : textColor,
           ),
         ),
         onPressed: onPressed,

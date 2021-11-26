@@ -27,7 +27,7 @@ class UserDetailScreen extends StatefulWidget {
 class _UserDetailScreenState extends State<UserDetailScreen> {
   final _auth = FirebaseAuth.instance;
   final _fireStore = FirebaseFirestore.instance;
-  String distance = '';
+  double? distance;
   double bearing = 0.0;
   Location myLocation = Location();
   Location opponentLocation = Location();
@@ -142,39 +142,22 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                '${widget.opponentName}との距離は...',
-                style: const TextStyle(fontSize: 20),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Center(
-                child: RichText(
-                  text: TextSpan(
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 40,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: distance,
-                        style: const TextStyle(
-                            color: Colors.purple,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 50),
-                      ),
-                      const TextSpan(
-                        text: 'm',
-                        style: TextStyle(letterSpacing: 5),
-                      ),
-                    ],
-                  ),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildCompass(bearing),
+                const SizedBox(height: 50),
+                Text(
+                  '${widget.opponentName}との距離は...',
+                  style: const TextStyle(fontSize: 20),
                 ),
+                const SizedBox(
+                  height: 20,
+                ),
+                _setDistanceText(distance),
+              ],
+            ),
               ),
               const SizedBox(height: 50),
               _buildCompass(bearing),
@@ -184,6 +167,51 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
       ),
     );
   }
+}
+
+Widget _setDistanceText(double? distance) {
+  String distanceText;
+  String? distanceUnit;
+
+  if (distance == null) {
+    distanceText = '---';
+  } else {
+    // 1000m以上の場合、kmに変換
+    if (distance >= 1000) {
+      distanceText = (distance / 1000).round().toString();
+      distanceUnit = 'km';
+    } else {
+      distanceText = distance.round().toString();
+      distanceUnit = 'm';
+    }
+  }
+
+  return RichText(
+    text: TextSpan(
+      style: const TextStyle(
+        color: Colors.black,
+        fontSize: 40,
+      ),
+      children: [
+        TextSpan(
+          text: distanceText,
+          style: const TextStyle(
+            color: Colors.blue,
+            fontWeight: FontWeight.bold,
+            fontSize: 50,
+          ),
+        ),
+        const WidgetSpan(
+          child: SizedBox(
+            width: 5,
+          ),
+        ),
+        TextSpan(
+          text: distanceUnit,
+        ),
+      ],
+    ),
+  );
 }
 
 Widget _buildCompass(double bearing) {
@@ -213,7 +241,7 @@ Widget _buildCompass(double bearing) {
           angle: (direction - bearing) * (pi / 180) * -1,
           child: const Image(
             image: AssetImage('images/navigation.png'),
-            color: Colors.purple,
+            color: Colors.blue,
           ),
         ),
         height: 200,

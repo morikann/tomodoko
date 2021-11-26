@@ -22,7 +22,7 @@ class Tomodoko extends StatelessWidget {
     return MaterialApp(
       title: 'tomodoko',
       theme: ThemeData(
-        primarySwatch: Colors.purple,
+        primarySwatch: Colors.blue,
       ),
       initialRoute: WelcomeScreen.id,
       routes: {
