@@ -98,15 +98,18 @@ class _UserListScreenState extends State<UserListScreen> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: TextField(
+                      textAlignVertical: TextAlignVertical.center,
                       decoration: const InputDecoration(
                         // 無理矢理paddingをつけて高さを調整しているが、他に方法はないのか...
-                        contentPadding: EdgeInsets.only(top: 5),
+                        // contentPadding: EdgeInsets.only(top: 5),
+                        // -> prefixIconが設定れている時は、verticalAlignとisCollapsedを設定したらできた
                         prefixIcon: Icon(Icons.search),
                         hintText: 'ユーザー検索',
                         hintStyle: TextStyle(
                           color: Colors.grey,
                         ),
                         border: InputBorder.none,
+                        isCollapsed: true,
                       ),
                       style: const TextStyle(
                         color: Colors.black,
