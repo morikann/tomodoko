@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:email_validator/email_validator.dart';
+import '../component/required_text_form_field.dart';
 
 class SignupScreen extends StatefulWidget {
   static const String id = 'signup_screen';
@@ -168,8 +169,10 @@ class _SignupScreenState extends State<SignupScreen> {
                           child: Column(
                             children: [
                               // username field
-                              TextFormField(
-                                keyboardType: TextInputType.name,
+                              RequiredTextFormField(
+                                controller: _nameController,
+                                label: 'ユーザー名',
+                                inputType: TextInputType.name,
                                 validator: (value) {
                                   // 1文字以上10文字以内（スペースなどの空白で通ってしまうので、trimメソッドで前後の空白を消す）
                                   if (value == null ||
@@ -183,32 +186,51 @@ class _SignupScreenState extends State<SignupScreen> {
                                   }
                                   return null;
                                 },
-                                onChanged: (value) async {
-                                  // validator内では非同期処理が使えないので、onChanged内でstateを更新。
-                                  // ただ、文字が変わるたびにクエリを発行してfireStoreに余分な負荷がかかりそう。
-                                  // onSaved内で書いた場合、_formKey.currentState!.save();の後に_formKey.currentState!.validate()を
-                                  // 実行してもcheckNameExists(value)は非同期なので、_formKey.currentState!.validate()が
-                                  // 先に実行されてうまく動作しない
-                                  // await checkNameExists(value);
-                                },
                                 onSaved: (value) {
                                   setState(() {
                                     username = value!;
                                   });
                                 },
-                                controller: _nameController,
-                                decoration: const InputDecoration(
-                                  helperText: '*必須',
-                                  helperStyle: TextStyle(
-                                    color: Colors.red,
-                                  ),
-                                  labelText: 'ユーザー名',
-                                ),
                               ),
-                              // email field
-                              emailTextField(),
-                              // password field
-                              passwordTextField(),
+                              RequiredTextFormField(
+                                controller: _emailController,
+                                label: 'メールアドレス',
+                                inputType: TextInputType.emailAddress,
+                                validator: (value) {
+                                  // 1文字以上必要
+                                  if (value == null || value.isEmpty) {
+                                    return 'メールアドレスを入力してください';
+                                  }
+                                  // メールアドレス以外は受けつけない
+                                  if (!EmailValidator.validate(value)) {
+                                    return '正しいメールアドレスを入力してください';
+                                  }
+                                  return null;
+                                },
+                                onSaved: (value) {
+                                  setState(() {
+                                    email = value!;
+                                  });
+                                },
+                              ),
+                              RequiredTextFormField(
+                                controller: _passwordController,
+                                label: 'パスワード',
+                                obscure: true,
+                                validator: (value) {
+                                  if (!RegExp(
+                                          r'^(?=.*?[a-zA-Z])(?=.*?\d)[a-zA-Z\d]{8,}$')
+                                      .hasMatch(value!)) {
+                                    return '8文字以上の半角英数字の混在で入力してください';
+                                  }
+                                  return null;
+                                },
+                                onSaved: (value) {
+                                  setState(() {
+                                    password = value!;
+                                  });
+                                },
+                              ),
                               const SizedBox(
                                 height: 30,
                               ),
@@ -251,62 +273,6 @@ class _SignupScreenState extends State<SignupScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  TextFormField passwordTextField() {
-    return TextFormField(
-      obscureText: true,
-      validator: (value) {
-        if (!RegExp(r'^(?=.*?[a-zA-Z])(?=.*?\d)[a-zA-Z\d]{8,}$')
-            .hasMatch(value!)) {
-          return '8文字以上の半角英数字の混在で入力してください';
-        }
-        return null;
-      },
-      onSaved: (value) {
-        setState(() {
-          password = value!;
-        });
-      },
-      controller: _passwordController,
-      decoration: const InputDecoration(
-        helperText: '*必須',
-        helperStyle: TextStyle(
-          color: Colors.red,
-        ),
-        labelText: 'パスワード',
-      ),
-    );
-  }
-
-  TextFormField emailTextField() {
-    return TextFormField(
-      keyboardType: TextInputType.emailAddress,
-      validator: (value) {
-        // 1文字以上必要
-        if (value == null || value.isEmpty) {
-          return 'メールアドレスを入力してください';
-        }
-        // メールアドレス以外は受けつけない
-        if (!EmailValidator.validate(value)) {
-          return '正しいメールアドレスを入力してください';
-        }
-        return null;
-      },
-      onSaved: (value) {
-        setState(() {
-          email = value!;
-        });
-      },
-      controller: _emailController,
-      decoration: const InputDecoration(
-        helperText: '*必須',
-        helperStyle: TextStyle(
-          color: Colors.red,
-        ),
-        labelText: 'メールアドレス',
       ),
     );
   }

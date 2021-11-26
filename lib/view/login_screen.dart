@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:tomodoko/view/home_screen.dart';
-import 'package:tomodoko/view/user_list_screen.dart';
 import '../component/common_button.dart';
 import 'signup_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:email_validator/email_validator.dart';
+import '../component/required_text_form_field.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = 'login_screen';
@@ -110,8 +110,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           key: _formKey,
                           child: Column(
                             children: [
-                              TextFormField(
-                                keyboardType: TextInputType.emailAddress,
+                              RequiredTextFormField(
+                                controller: _emailController,
+                                label: 'メールアドレス',
+                                inputType: TextInputType.emailAddress,
                                 validator: (value) {
                                   // 1文字以上必要
                                   if (value == null || value.isEmpty) {
@@ -128,30 +130,24 @@ class _LoginScreenState extends State<LoginScreen> {
                                     email = value!;
                                   });
                                 },
-                                controller: _emailController,
-                                decoration: const InputDecoration(
-                                  helperText: '*必須',
-                                  helperStyle: TextStyle(
-                                    color: Colors.red,
-                                  ),
-                                  labelText: 'メールアドレス',
-                                ),
                               ),
-                              TextFormField(
-                                obscureText: true,
+                              RequiredTextFormField(
+                                controller: _passwordController,
+                                label: 'パスワード',
+                                obscure: true,
+                                validator: (value) {
+                                  if (!RegExp(
+                                          r'^(?=.*?[a-zA-Z])(?=.*?\d)[a-zA-Z\d]{8,}$')
+                                      .hasMatch(value!)) {
+                                    return '8文字以上の半角英数字の混在で入力してください';
+                                  }
+                                  return null;
+                                },
                                 onSaved: (value) {
                                   setState(() {
                                     password = value!;
                                   });
                                 },
-                                controller: _passwordController,
-                                decoration: const InputDecoration(
-                                  helperText: '*必須',
-                                  helperStyle: TextStyle(
-                                    color: Colors.red,
-                                  ),
-                                  labelText: 'パスワード',
-                                ),
                               ),
                               const SizedBox(height: 30),
                               CommonButton(
