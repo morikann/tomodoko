@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'view/home_screen.dart';
 import 'view/signup_screen.dart';
 import 'view/welcome_screen.dart';
@@ -11,6 +12,9 @@ import 'view/user_edit_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations(
+    [DeviceOrientation.portraitUp],
+  );
   await Firebase.initializeApp();
   runApp(const Tomodoko());
 }
