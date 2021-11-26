@@ -103,7 +103,7 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
                       return Column(
                         children: [
                           CircleAvatar(
-                            backgroundColor: Colors.purple,
+                            backgroundColor: Colors.blue,
                             radius: 120,
                             child: CircleAvatar(
                               backgroundImage: _imageProvider(data['imgURL']),
