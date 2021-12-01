@@ -136,9 +136,12 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
                   height: 45,
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      primary: Colors.grey.shade300,
+                      primary: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
+                      ),
+                      side: const BorderSide(
+                        color: Colors.blue,
                       ),
                     ),
                     onPressed: () {
@@ -148,12 +151,12 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
                     },
                     icon: const Icon(
                       Icons.edit,
-                      color: Colors.black,
+                      color: Colors.blue,
                     ),
                     label: const Text(
                       'プロフィールを編集',
                       style: TextStyle(
-                        color: Colors.black,
+                        color: Colors.blue,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
