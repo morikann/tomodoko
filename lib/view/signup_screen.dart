@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:tomodoko/component/common_button.dart';
-import 'package:tomodoko/view/home_screen.dart';
 import 'login_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:email_validator/email_validator.dart';
 import '../component/required_text_form_field.dart';
+import '../services/firestore.dart';
 
 class SignupScreen extends StatefulWidget {
   static const String id = 'signup_screen';
@@ -17,103 +15,16 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
   bool _showSpinner = false;
   late String username = '';
   late String email = '';
   late String password = '';
-  bool _nameExists = false;
+  final _firestore = Firestore();
 
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-
-  Future<void> addUser(String uid) {
-    return _fireStore.collection('users').doc(uid).set({
-      'uid': uid,
-      'name': username,
-      'email': email,
-    }).then((value) {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        HomeScreen.id,
-        (route) => false,
-      );
-      setState(() {
-        _showSpinner = false;
-      });
-    }).catchError((e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red,
-          content: Text('予期せぬエラーが発生しました: $e'),
-        ),
-      );
-      setState(() {
-        _showSpinner = false;
-      });
-    });
-  }
-
-  Future<void> signup(String email, String password) async {
-    try {
-      final UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      final uid = userCredential.user!.uid;
-      addUser(uid);
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'email-already-in-use') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('$emailは既に登録されています'),
-          ),
-        );
-        setState(() {
-          _showSpinner = false;
-        });
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red,
-          content: Text('予期せぬエラーが発生しました: $e'),
-        ),
-      );
-      setState(() {
-        _showSpinner = false;
-      });
-    }
-  }
-
-  Future<void> checkNameExists(String name) async {
-    // このコード内ではawaitがなくてもうまく動作するが、呼び出し元のonPressed()で
-    // この関数を呼び出すときに以下の非同期処理をawaitしていないと、処理が先に進み
-    // うまく動作しないため、awaitが必要。非同期処理は複雑だからもっと勉強しないと。
-    await _fireStore
-        .collection('users')
-        .where('name', isEqualTo: name)
-        .get()
-        .then((QuerySnapshot querySnapshot) {
-      if (querySnapshot.docs.isNotEmpty) {
-        setState(() {
-          _nameExists = true;
-        });
-      } else {
-        setState(() {
-          _nameExists = false;
-        });
-      }
-    }).catchError((e) {
-      setState(() {
-        _nameExists = false;
-      });
-    });
-  }
 
   @override
   void dispose() {
@@ -181,7 +92,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                     return '1~10文字以内で名前を入力してください';
                                   }
                                   // 同じ名前は登録できない
-                                  if (_nameExists) {
+                                  if (_firestore.nameExists) {
                                     return '名前は既に存在しています';
                                   }
                                   return null;
@@ -235,20 +146,32 @@ class _SignupScreenState extends State<SignupScreen> {
                                 height: 30,
                               ),
                               CommonButton(
-                                name: '登録',
-                                textColor: Colors.white,
-                                backgroundColor: Colors.blue,
-                                onPressed: () async {
-                                  _formKey.currentState!.save();
-                                  await checkNameExists(username);
-                                  if (_formKey.currentState!.validate()) {
-                                    setState(() {
-                                      _showSpinner = true;
-                                    });
-                                    await signup(email, password);
-                                  }
-                                },
-                              ),
+                                  name: '登録',
+                                  textColor: Colors.white,
+                                  backgroundColor: Colors.blue,
+                                  onPressed: () async {
+                                    _formKey.currentState!.save();
+                                    await _firestore.checkNameExists(username);
+                                    if (_formKey.currentState!.validate()) {
+                                      setState(() {
+                                        _showSpinner = true;
+                                      });
+                                      // await signup(email, password);
+                                      String? uid = await _firestore.signup(
+                                          email, password, context);
+                                      if (uid != null) {
+                                        await _firestore.saveUser(
+                                            uid, username, email, context);
+                                        setState(() {
+                                          _showSpinner = false;
+                                        });
+                                      } else {
+                                        setState(() {
+                                          _showSpinner = false;
+                                        });
+                                      }
+                                    }
+                                  }),
                               Padding(
                                 padding: const EdgeInsets.only(top: 10),
                                 child: GestureDetector(

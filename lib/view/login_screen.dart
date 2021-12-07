@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:tomodoko/view/home_screen.dart';
 import '../component/common_button.dart';
 import 'signup_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:email_validator/email_validator.dart';
 import '../component/required_text_form_field.dart';
+import '../services/firestore.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = 'login_screen';
@@ -17,46 +16,13 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _showSpinner = false;
-  final _auth = FirebaseAuth.instance;
   late String email = '';
   late String password = '';
+  final _firestore = Firestore();
 
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-
-  Future<void> signIn(String email, String password) async {
-    try {
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        HomeScreen.id,
-        (route) => false,
-      );
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('メールアドレスが見つかりませんでした'),
-          ),
-        );
-      } else if (e.code == 'wrong-password') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('パスワードが正しくありません'),
-          ),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red,
-          content: Text('予期せぬエラーが発生しました: $e'),
-        ),
-      );
-    }
-  }
 
   @override
   void dispose() {
@@ -126,9 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   return null;
                                 },
                                 onSaved: (value) {
-                                  setState(() {
-                                    email = value!;
-                                  });
+                                  email = value!;
                                 },
                               ),
                               RequiredTextFormField(
@@ -144,9 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   return null;
                                 },
                                 onSaved: (value) {
-                                  setState(() {
-                                    password = value!;
-                                  });
+                                  password = value!;
                                 },
                               ),
                               const SizedBox(height: 30),
@@ -158,7 +120,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                       _showSpinner = true;
                                     });
                                     _formKey.currentState!.save();
-                                    await signIn(email, password);
+                                    await _firestore.signIn(
+                                        email, password, context);
                                     setState(() {
                                       _showSpinner = false;
                                     });

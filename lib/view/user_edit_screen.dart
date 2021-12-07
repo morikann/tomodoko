@@ -2,9 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
+import '../model/image_manager.dart';
 
 class UserEditScreen extends StatefulWidget {
   static const String id = 'user_edit_screen';
@@ -17,69 +16,25 @@ class UserEditScreen extends StatefulWidget {
 class _UserEditScreenState extends State<UserEditScreen> {
   final _auth = FirebaseAuth.instance;
   final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
-  File? _imageFile;
-  final ImagePicker _picker = ImagePicker();
   bool showSpinner = false;
   bool _nameExists = false;
   String inputUsername = '';
   String currentUsername = '';
   bool hasUpdated = false;
+  final imageManager = ImageManager();
 
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  ImageProvider _imageProvider(imgPath) {
-    // 画像の選択があったら表示
-    if (_imageFile != null) {
-      return FileImage(_imageFile!);
-    }
-
-    // cloud_storageに画像があったら表示
-    if (imgPath != null) {
-      return NetworkImage(imgPath);
-    }
-
-    // 何もなかったらデフォルト画像
-    return const AssetImage('images/default.png');
-  }
-
-  Future<void> getImageFromCamera() async {
-    final XFile? pickedFile =
-        await _picker.pickImage(source: ImageSource.camera);
-    if (pickedFile != null) {
-      // 画像の選択があったらbottomSheetを閉じる
-      Navigator.of(context).pop();
-      setState(() {
-        _imageFile = File(pickedFile.path);
-      });
-    } else {
-      print('no camera image selected');
-    }
-  }
-
-  Future<void> getImageFromGallery() async {
-    final XFile? pickedFile =
-        await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      // 画像の選択があったらbottomSheetを閉じる
-      Navigator.of(context).pop();
-      setState(() {
-        _imageFile = File(pickedFile.path);
-      });
-    } else {
-      print('no gallery image selected');
-    }
-  }
-
   Future updateProfile() async {
     final String _uid = _auth.currentUser!.uid;
     // 名前の変更あり かつ 画像の変更あり
-    if (inputUsername != currentUsername && _imageFile != null) {
+    if (inputUsername != currentUsername && imageManager.imageFile != null) {
       // storageにアップロード
       final uploadTask = await FirebaseStorage.instance
           .ref('users/$_uid')
-          .putFile(_imageFile!);
+          .putFile(imageManager.imageFile!);
 
       // storageに保存した画像のURLを取得
       final imgURL = await uploadTask.ref.getDownloadURL();
@@ -102,11 +57,11 @@ class _UserEditScreenState extends State<UserEditScreen> {
       hasUpdated = true;
 
       // 画像の変更のみあり
-    } else if (_imageFile != null) {
+    } else if (imageManager.imageFile != null) {
       // storageにアップロード
       final uploadTask = await FirebaseStorage.instance
           .ref('users/$_uid')
-          .putFile(_imageFile!);
+          .putFile(imageManager.imageFile!);
 
       // storageに保存した画像のURLを取得
       final imgURL = await uploadTask.ref.getDownloadURL();
@@ -223,7 +178,8 @@ class _UserEditScreenState extends State<UserEditScreen> {
                               backgroundColor: Colors.blue,
                               radius: 110,
                               child: CircleAvatar(
-                                backgroundImage: _imageProvider(data['imgURL']),
+                                backgroundImage: imageManager
+                                    .getImageProvider(data['imgURL']),
                                 radius: 108,
                                 backgroundColor: Colors.white,
                                 child: Stack(
@@ -377,7 +333,13 @@ class _UserEditScreenState extends State<UserEditScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            onTap: getImageFromCamera,
+            onTap: () async {
+              await imageManager.getImageFromCamera();
+              setState(() {});
+              if (imageManager.isFileSelected) {
+                Navigator.of(context).pop();
+              }
+            },
           ),
           ListTile(
             leading: CircleAvatar(
@@ -393,7 +355,13 @@ class _UserEditScreenState extends State<UserEditScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            onTap: getImageFromGallery,
+            onTap: () async {
+              await imageManager.getImageFromGallery();
+              setState(() {});
+              if (imageManager.isFileSelected) {
+                Navigator.of(context).pop();
+              }
+            },
           ),
         ],
       ),
