@@ -90,7 +90,7 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
                 FutureBuilder<DocumentSnapshot>(
                   future: FirebaseFirestore.instance
                       .collection('users')
-                      .doc(_auth.currentUser!.uid)
+                      .doc(_auth.currentUser?.uid)
                       .get(),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
@@ -99,7 +99,7 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
 
                     if (snapshot.connectionState == ConnectionState.done) {
                       Map<String, dynamic> data =
-                          snapshot.data!.data() as Map<String, dynamic>;
+                          snapshot.data?.data() as Map<String, dynamic>;
                       return Column(
                         children: [
                           CircleAvatar(

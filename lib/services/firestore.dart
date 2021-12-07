@@ -7,15 +7,24 @@ import '../view/home_screen.dart';
 class Firestore {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
+  bool _nameExists = false;
 
-  Future<bool> checkNameExists(String name) async {
+  bool get nameExists {
+    return _nameExists;
+  }
+
+  Future<void> checkNameExists(String name) async {
     final QuerySnapshot result = await _firestore
         .collection('users')
         .where('name', isEqualTo: name)
         .limit(1)
         .get();
     final List<DocumentSnapshot> documents = result.docs;
-    return documents.length == 1;
+    if (documents.length == 1) {
+      _nameExists = true;
+    } else {
+      _nameExists = false;
+    }
   }
 
   Future<void> saveUser(

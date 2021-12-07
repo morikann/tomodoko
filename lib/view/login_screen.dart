@@ -92,9 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   return null;
                                 },
                                 onSaved: (value) {
-                                  // setState(() {
-                                  //   email = value!;
-                                  // });
+                                  email = value!;
                                 },
                               ),
                               RequiredTextFormField(
@@ -110,9 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   return null;
                                 },
                                 onSaved: (value) {
-                                  setState(() {
-                                    password = value!;
-                                  });
+                                  password = value!;
                                 },
                               ),
                               const SizedBox(height: 30),

@@ -19,7 +19,6 @@ class _SignupScreenState extends State<SignupScreen> {
   late String username = '';
   late String email = '';
   late String password = '';
-  bool _nameExists = false;
   final _firestore = Firestore();
 
   final _formKey = GlobalKey<FormState>();
@@ -93,7 +92,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                     return '1~10文字以内で名前を入力してください';
                                   }
                                   // 同じ名前は登録できない
-                                  if (_nameExists) {
+                                  if (_firestore.nameExists) {
                                     return '名前は既に存在しています';
                                   }
                                   return null;
@@ -152,8 +151,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                   backgroundColor: Colors.blue,
                                   onPressed: () async {
                                     _formKey.currentState!.save();
-                                    _nameExists = await _firestore
-                                        .checkNameExists(username);
+                                    await _firestore.checkNameExists(username);
                                     if (_formKey.currentState!.validate()) {
                                       setState(() {
                                         _showSpinner = true;
