@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tomodoko/view/friend_add_screen.dart';
+import 'package:tomodoko/view/friend/friend_add_screen.dart';
 import 'user_list_screen.dart';
 import 'current_user_screen.dart';
 
