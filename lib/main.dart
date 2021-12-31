@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tomodoko/view/friend_add_screen.dart';
 import 'view/home_screen.dart';
 import 'view/signup_screen.dart';
 import 'view/welcome_screen.dart';
@@ -37,6 +38,7 @@ class Tomodoko extends StatelessWidget {
         UserListScreen.id: (context) => const UserListScreen(),
         HomeScreen.id: (context) => const HomeScreen(),
         UserEditScreen.id: (context) => const UserEditScreen(),
+        FriendAddScreen.id: (context) => const FriendAddScreen(),
       },
       // ModalRoute.of(context)!.settings.arguments as UserDetailScreenArguments;で
       // 遷移元から遷移先に値を渡せるが、取得できる場所がbuildメソッド内になってしまう。
