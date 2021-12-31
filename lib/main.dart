@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:tomodoko/view/friend_add_screen.dart';
+import 'package:tomodoko/view/friend/friend_add_screen.dart';
+import 'package:tomodoko/view/friend/friend_request_screen.dart';
 import 'view/home_screen.dart';
 import 'view/signup_screen.dart';
 import 'view/welcome_screen.dart';
@@ -54,6 +55,14 @@ class Tomodoko extends StatelessWidget {
               timerCancel: args.timerCancel,
             );
           });
+        }
+        if (settings.name == FriendRequestScreen.id) {
+          final args = settings.arguments as String;
+          return MaterialPageRoute(
+            builder: (context) {
+              return FriendRequestScreen(friendUid: args);
+            },
+          );
         }
       },
     );
