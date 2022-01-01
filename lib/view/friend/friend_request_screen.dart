@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
@@ -32,6 +33,17 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
     return const AssetImage('images/default.png');
   }
 
+  void _friendRequest() async {
+    await FirebaseFirestore.instance
+        .collection('follows')
+        .add({
+          'following_uid': FirebaseAuth.instance.currentUser?.uid,
+          'followed_uid': widget.friendUid,
+        })
+        .then((value) => print('save user'))
+        .catchError((e) => print(e));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,62 +66,84 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
                     .get(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
-                    return const Text('Something went wrong');
+                    return const Text('予期せぬエラーが発生しました');
                   }
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    Map<String, dynamic> data =
-                        snapshot.data?.data() as Map<String, dynamic>;
-                    return Column(
-                      children: [
-                        const SizedBox(height: 80),
-                        CircleAvatar(
-                          backgroundColor: Colors.blue,
-                          radius: 80,
-                          child: CircleAvatar(
-                            backgroundImage: _imageProvider(data['imgURL']),
-                            radius: 78,
-                            backgroundColor: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        Text(
-                          data['name'] ?? '',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 25,
-                          ),
-                        ),
-                      ],
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
                     );
                   }
-                  return const Center(
-                    child: CircularProgressIndicator(),
+
+                  Map<String, dynamic> data =
+                      snapshot.data?.data() as Map<String, dynamic>;
+                  return Column(
+                    children: [
+                      const SizedBox(height: 80),
+                      CircleAvatar(
+                        backgroundColor: Colors.blue,
+                        radius: 80,
+                        child: CircleAvatar(
+                          backgroundImage: _imageProvider(data['imgURL']),
+                          radius: 78,
+                          backgroundColor: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                      Text(
+                        data['name'] ?? '',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 25,
+                        ),
+                      ),
+                    ],
                   );
                 },
               ),
               const SizedBox(
                 height: 80,
               ),
-              SizedBox(
-                width: 150,
-                height: 40,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('follows')
+                    .where('following_uid',
+                        isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+                    .where('followed_uid', isEqualTo: widget.friendUid)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return const Text('予期せぬエラーが発生しました');
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  bool? isFollow = snapshot.data?.docs.isNotEmpty;
+
+                  return SizedBox(
+                    width: 150,
+                    height: 40,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        primary: isFollow! ? Colors.grey.shade200 : Colors.blue,
+                      ),
+                      onPressed: _friendRequest,
+                      child: Text(
+                        isFollow ? '友だち申請済み' : '友だち申請する',
+                        style: TextStyle(
+                          color: isFollow ? Colors.black : Colors.white,
+                          fontSize: 14,
+                        ),
+                      ),
                     ),
-                    primary: Colors.blue,
-                  ),
-                  onPressed: () {},
-                  child: const Text(
-                    '友だち申請する',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
+                  );
+                },
               ),
             ],
           ),
