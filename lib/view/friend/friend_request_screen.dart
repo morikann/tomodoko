@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
+import 'package:tomodoko/view/home_screen.dart';
 
 class FriendRequestScreen extends StatefulWidget {
   static const id = 'friend_request_screen';
@@ -48,7 +49,24 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            HomeScreen.id,
+            (route) => false,
+          );
+        },
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: const Icon(
+          Icons.cancel_outlined,
+          size: 42,
+          color: Colors.grey,
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           '友だち追加',
           style: TextStyle(
@@ -138,7 +156,8 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
                       child: Text(
                         isFollow! ? '友だち申請済み' : '友だち申請する',
                         style: TextStyle(
-                          color: isFollow! ? Colors.black : Colors.white,
+                          color:
+                              isFollow! ? Colors.grey.shade800 : Colors.white,
                           fontSize: 14,
                         ),
                       ),

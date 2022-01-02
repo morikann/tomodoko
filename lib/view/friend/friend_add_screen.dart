@@ -46,6 +46,7 @@ class _FriendAddScreenState extends State<FriendAddScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           '友だちを追加',
           style: TextStyle(
