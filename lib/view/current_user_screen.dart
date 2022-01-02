@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tomodoko/component/common_button.dart';
+import 'package:tomodoko/view/friend/friend_request_list_screen.dart';
 import 'user_edit_screen.dart';
 import 'welcome_screen.dart';
 import 'dart:io';
@@ -83,7 +85,8 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
         inAsyncCall: showSpinner,
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.only(top: 50, right: 30, left: 30),
+            padding:
+                const EdgeInsets.only(top: 50, right: 30, left: 30, bottom: 30),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -104,20 +107,20 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
                         children: [
                           CircleAvatar(
                             backgroundColor: Colors.blue,
-                            radius: 120,
+                            radius: 80,
                             child: CircleAvatar(
                               backgroundImage: _imageProvider(data['imgURL']),
-                              radius: 118,
+                              radius: 78,
                               backgroundColor: Colors.white,
                             ),
                           ),
-                          const SizedBox(height: 30),
+                          const SizedBox(height: 10),
                           Text(
                             data['name'] ?? '',
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 30,
+                              fontSize: 26,
                             ),
                           ),
                         ],
@@ -130,7 +133,7 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
                   },
                 ),
                 const SizedBox(
-                  height: 30,
+                  height: 50,
                 ),
                 SizedBox(
                   height: 45,
@@ -161,6 +164,16 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
                       ),
                     ),
                   ),
+                ),
+                // const Spacer(),
+                const SizedBox(height: 20),
+                CommonButton(
+                  name: '友だちリクエスト',
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(FriendRequestListScreen.id);
+                  },
+                  backgroundColor: Colors.blue,
+                  textColor: Colors.white,
                 ),
               ],
             ),
