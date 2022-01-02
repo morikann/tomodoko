@@ -17,6 +17,7 @@ class FriendRequestScreen extends StatefulWidget {
 
 class _FriendRequestScreenState extends State<FriendRequestScreen> {
   File? _imageFile;
+  bool? isFollow;
 
   ImageProvider _imageProvider(imgPath) {
     // 画像の選択があったら表示
@@ -121,7 +122,7 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
                     );
                   }
 
-                  bool? isFollow = snapshot.data?.docs.isNotEmpty;
+                  isFollow = snapshot.data?.docs.isNotEmpty;
 
                   return SizedBox(
                     width: 150,
@@ -133,11 +134,11 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
                         ),
                         primary: isFollow! ? Colors.grey.shade200 : Colors.blue,
                       ),
-                      onPressed: _friendRequest,
+                      onPressed: isFollow! ? null : _friendRequest,
                       child: Text(
-                        isFollow ? '友だち申請済み' : '友だち申請する',
+                        isFollow! ? '友だち申請済み' : '友だち申請する',
                         style: TextStyle(
-                          color: isFollow ? Colors.black : Colors.white,
+                          color: isFollow! ? Colors.black : Colors.white,
                           fontSize: 14,
                         ),
                       ),
