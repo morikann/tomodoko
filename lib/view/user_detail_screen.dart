@@ -103,49 +103,58 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
       appBar: AppBar(
         title: Text(
           widget.opponentName,
-          style: const TextStyle(fontSize: 18),
+          style: const TextStyle(
+            fontSize: 18,
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await showDialog<AlertDialog>(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text('ログアウトしますか？'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () async {
-                          await _auth.signOut();
-                          // ログアウトしたらタイマーをキャンセル
-                          widget.timerCancel();
-                          Navigator.of(context)
-                              .pushReplacementNamed(WelcomeScreen.id);
-                        },
-                        child: const Text('OK'),
-                      )
-                    ],
-                  );
-                },
-              );
-            },
-          )
-        ],
+        iconTheme: const IconThemeData(
+          color: Colors.black,
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.logout),
+        //     onPressed: () async {
+        //       await showDialog<AlertDialog>(
+        //         context: context,
+        //         builder: (context) {
+        //           return AlertDialog(
+        //             title: const Text('ログアウトしますか？'),
+        //             actions: [
+        //               TextButton(
+        //                 onPressed: () {
+        //                   Navigator.of(context).pop();
+        //                 },
+        //                 child: const Text('Cancel'),
+        //               ),
+        //               TextButton(
+        //                 onPressed: () async {
+        //                   await _auth.signOut();
+        //                   // ログアウトしたらタイマーをキャンセル
+        //                   widget.timerCancel();
+        //                   Navigator.of(context)
+        //                       .pushReplacementNamed(WelcomeScreen.id);
+        //                 },
+        //                 child: const Text('OK'),
+        //               )
+        //             ],
+        //           );
+        //         },
+        //       );
+        //     },
+        //   )
+        // ],
       ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30),
           child: Center(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                const SizedBox(height: 100),
                 _buildCompass(bearing),
                 const SizedBox(height: 50),
                 Text(
@@ -192,7 +201,7 @@ Widget _setDistanceText(double? distance) {
         TextSpan(
           text: distanceText,
           style: const TextStyle(
-            color: Colors.blue,
+            color: Colors.black,
             fontWeight: FontWeight.bold,
             fontSize: 50,
           ),
@@ -232,15 +241,25 @@ Widget _buildCompass(double bearing) {
         );
       }
 
-      return SizedBox(
-        child: Transform.rotate(
-          angle: (direction - bearing) * (pi / 180) * -1,
-          child: const Image(
-            image: AssetImage('images/navigation.png'),
-            color: Colors.blue,
+      return Container(
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: Colors.grey.shade400,
           ),
         ),
-        height: 200,
+        child: Transform.rotate(
+          angle: (direction - bearing) * (pi / 180) * -1,
+          child: const Padding(
+            padding: EdgeInsets.only(bottom: 15),
+            child: Icon(
+              Icons.navigation,
+              size: 180,
+              color: Colors.blue,
+            ),
+          ),
+        ),
       );
     },
   );
