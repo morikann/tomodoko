@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'welcome_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../model/location.dart';
@@ -106,7 +105,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
           style: const TextStyle(
             fontSize: 18,
             color: Colors.black,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w500,
           ),
         ),
         iconTheme: const IconThemeData(
