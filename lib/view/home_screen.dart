@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tomodoko/view/friend/friend_add_screen.dart';
 import 'user_list_screen.dart';
 import 'current_user_screen.dart';
 
@@ -28,12 +27,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).pushNamed(FriendAddScreen.id);
-        },
-        child: const Icon(Icons.add),
-      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
