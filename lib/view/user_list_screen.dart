@@ -148,58 +148,64 @@ class _UserListScreenState extends State<UserListScreen> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       appBar: AppBar(
-        title: customSearchBar,
-        actions: [
-          IconButton(
-            onPressed: () async {
-              setState(() {
-                if (customIcon.icon == Icons.search) {
-                  customIcon = const Icon(Icons.cancel);
-                  customSearchBar = Container(
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: TextField(
-                      textAlignVertical: TextAlignVertical.center,
-                      decoration: const InputDecoration(
-                        // 無理矢理paddingをつけて高さを調整しているが、他に方法はないのか...
-                        // contentPadding: EdgeInsets.only(top: 5),
-                        // -> prefixIconが設定れている時は、verticalAlignとisCollapsedを設定したらできた
-                        prefixIcon: Icon(Icons.search),
-                        hintText: 'ユーザー検索',
-                        hintStyle: TextStyle(
-                          color: Colors.grey,
-                        ),
-                        border: InputBorder.none,
-                        isCollapsed: true,
-                      ),
-                      style: const TextStyle(
-                        color: Colors.black,
-                      ),
-                      onChanged: (value) {
-                        setState(() {
-                          searchWord = value;
-                        });
-                      },
-                    ),
-                  );
-                } else {
-                  setState(() {
-                    searchWord = '';
-                  });
-                  customIcon = const Icon(Icons.search);
-                  customSearchBar = const Text(
-                    'ホーム',
-                    style: TextStyle(fontSize: 18),
-                  );
-                }
-              });
-            },
-            icon: customIcon,
-          )
-        ],
+        title: const Text(
+          '友だち一覧',
+          style: TextStyle(
+            fontSize: 18,
+          ),
+        ),
+        // title: customSearchBar,
+        // actions: [
+        //   IconButton(
+        //     onPressed: () async {
+        //       setState(() {
+        //         if (customIcon.icon == Icons.search) {
+        //           customIcon = const Icon(Icons.cancel);
+        //           customSearchBar = Container(
+        //             height: 40,
+        //             decoration: BoxDecoration(
+        //               color: Colors.white,
+        //               borderRadius: BorderRadius.circular(20),
+        //             ),
+        //             child: TextField(
+        //               textAlignVertical: TextAlignVertical.center,
+        //               decoration: const InputDecoration(
+        //                 // 無理矢理paddingをつけて高さを調整しているが、他に方法はないのか...
+        //                 // contentPadding: EdgeInsets.only(top: 5),
+        //                 // -> prefixIconが設定れている時は、verticalAlignとisCollapsedを設定したらできた
+        //                 prefixIcon: Icon(Icons.search),
+        //                 hintText: 'ユーザー検索',
+        //                 hintStyle: TextStyle(
+        //                   color: Colors.grey,
+        //                 ),
+        //                 border: InputBorder.none,
+        //                 isCollapsed: true,
+        //               ),
+        //               style: const TextStyle(
+        //                 color: Colors.black,
+        //               ),
+        //               onChanged: (value) {
+        //                 setState(() {
+        //                   searchWord = value;
+        //                 });
+        //               },
+        //             ),
+        //           );
+        //         } else {
+        //           setState(() {
+        //             searchWord = '';
+        //           });
+        //           customIcon = const Icon(Icons.search);
+        //           customSearchBar = const Text(
+        //             'ホーム',
+        //             style: TextStyle(fontSize: 18),
+        //           );
+        //         }
+        //       });
+        //     },
+        //     icon: customIcon,
+        //   )
+        // ],
       ),
       body: SafeArea(
         child: _loading
