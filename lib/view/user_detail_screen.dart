@@ -99,18 +99,18 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue.shade100,
+      backgroundColor: Colors.blue,
       appBar: AppBar(
         title: Text(
           widget.opponentName,
           style: const TextStyle(
             fontSize: 20,
-            color: Colors.black,
+            color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
         iconTheme: const IconThemeData(
-          color: Colors.black,
+          color: Colors.white,
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -159,7 +159,10 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                 const SizedBox(height: 50),
                 Text(
                   '${widget.opponentName}との距離は...',
-                  style: const TextStyle(fontSize: 20),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                  ),
                 ),
                 const SizedBox(
                   height: 20,
@@ -194,14 +197,14 @@ Widget _setDistanceText(double? distance) {
   return RichText(
     text: TextSpan(
       style: const TextStyle(
-        color: Colors.black,
+        color: Colors.white,
         fontSize: 40,
       ),
       children: [
         TextSpan(
           text: distanceText,
           style: const TextStyle(
-            color: Colors.black,
+            color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 50,
           ),
@@ -256,7 +259,7 @@ Widget _buildCompass(double bearing) {
             child: Icon(
               Icons.navigation,
               size: 180,
-              color: Colors.blue,
+              color: Colors.white,
             ),
           ),
         ),
