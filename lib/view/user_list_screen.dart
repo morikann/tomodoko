@@ -86,7 +86,9 @@ class _UserListScreenState extends State<UserListScreen> {
           .where('uid', isEqualTo: follow)
           .get()
           .then((QuerySnapshot snapshot) {
-        mutualSnapshotList.add(snapshot.docs.first);
+        if (snapshot.docs.isNotEmpty) {
+          mutualSnapshotList.add(snapshot.docs.first);
+        }
       });
     }
     return mutualSnapshotList;

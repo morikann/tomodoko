@@ -70,7 +70,9 @@ class _FriendRequestListScreenState extends State<FriendRequestListScreen> {
           .where('uid', isEqualTo: uid)
           .get()
           .then((QuerySnapshot snapshot) {
-        documentSnapshotList.add(snapshot.docs.first);
+        if (snapshot.docs.isNotEmpty) {
+          documentSnapshotList.add(snapshot.docs.first);
+        }
       });
     }
     return documentSnapshotList;
@@ -102,8 +104,10 @@ class _FriendRequestListScreenState extends State<FriendRequestListScreen> {
         .where('followed_uid', isEqualTo: _auth.currentUser?.uid)
         .get()
         .then((QuerySnapshot snapshot) async {
-      final docId = snapshot.docs.first.id;
-      await removeRequest(docId);
+      if (snapshot.docs.isNotEmpty) {
+        final docId = snapshot.docs.first.id;
+        await removeRequest(docId);
+      }
     }).catchError((e) => print(e));
   }
 
