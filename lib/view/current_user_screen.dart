@@ -100,6 +100,12 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
                       return const Text('Something went wrong');
                     }
 
+                    if (snapshot.data?.data() == null) {
+                      return const Center(
+                        child: Text('ログインしてください'),
+                      );
+                    }
+
                     if (snapshot.connectionState == ConnectionState.done) {
                       Map<String, dynamic> data =
                           snapshot.data?.data() as Map<String, dynamic>;
