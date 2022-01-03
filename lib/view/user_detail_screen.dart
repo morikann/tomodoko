@@ -99,13 +99,14 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blue.shade100,
       appBar: AppBar(
         title: Text(
           widget.opponentName,
           style: const TextStyle(
-            fontSize: 18,
+            fontSize: 20,
             color: Colors.black,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.bold,
           ),
         ),
         iconTheme: const IconThemeData(
@@ -245,7 +246,7 @@ Widget _buildCompass(double bearing) {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(
-            color: Colors.grey.shade400,
+            color: Colors.white,
           ),
         ),
         child: Transform.rotate(

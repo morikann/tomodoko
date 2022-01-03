@@ -176,11 +176,11 @@ class _UserEditScreenState extends State<UserEditScreen> {
                           children: [
                             CircleAvatar(
                               backgroundColor: Colors.blue,
-                              radius: 110,
+                              radius: 80,
                               child: CircleAvatar(
                                 backgroundImage: imageManager
                                     .getImageProvider(data['imgURL']),
-                                radius: 108,
+                                radius: 78,
                                 backgroundColor: Colors.white,
                                 child: Stack(
                                   children: [
@@ -214,7 +214,7 @@ class _UserEditScreenState extends State<UserEditScreen> {
                                         radius: 22,
                                         backgroundColor: Colors.white,
                                       ),
-                                      bottom: 20,
+                                      bottom: 0,
                                       right: 0,
                                     ),
                                   ],
