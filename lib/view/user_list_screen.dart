@@ -139,7 +139,7 @@ class _UserListScreenState extends State<UserListScreen> {
     super.initState();
     // 呼び出し時に一回発火して、その後10秒毎に発火
     getLocation();
-    _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
       getLocation();
     });
   }
