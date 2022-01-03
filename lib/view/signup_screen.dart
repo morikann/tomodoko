@@ -53,7 +53,7 @@ class _SignupScreenState extends State<SignupScreen> {
           onTap: () => FocusScope.of(context).unfocus(),
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.only(left: 30, right: 30, top: 30),
+              padding: const EdgeInsets.symmetric(horizontal: 30),
               child: SingleChildScrollView(
                 child: SizedBox(
                   height: MediaQuery.of(context).size.height - 100,
@@ -61,6 +61,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      const SizedBox(height: 30),
                       Expanded(
                         flex: 2,
                         child: Hero(
