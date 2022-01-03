@@ -17,7 +17,6 @@ class UserListScreen extends StatefulWidget {
 }
 
 class _UserListScreenState extends State<UserListScreen> {
-  Future<QuerySnapshot>? mutualFollowers;
   final _auth = FirebaseAuth.instance;
   final _fireStore = FirebaseFirestore.instance;
   late Timer _timer;
@@ -37,10 +36,9 @@ class _UserListScreenState extends State<UserListScreen> {
     var followList = [];
     mutualSnapshotList = [];
 
-    await FirebaseFirestore.instance
+    await _fireStore
         .collection('follows')
-        .where('following_uid',
-            isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+        .where('following_uid', isEqualTo: _auth.currentUser?.uid)
         .get()
         .then((QuerySnapshot snapshot) {
       for (var doc in snapshot.docs) {
@@ -60,10 +58,9 @@ class _UserListScreenState extends State<UserListScreen> {
       return mutualFollowList;
     }
 
-    await FirebaseFirestore.instance
+    await _fireStore
         .collection('follows')
-        .where('followed_uid',
-            isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+        .where('followed_uid', isEqualTo: _auth.currentUser?.uid)
         .get()
         .then((QuerySnapshot snapshot) {
       for (var doc in snapshot.docs) {
@@ -84,7 +81,7 @@ class _UserListScreenState extends State<UserListScreen> {
   Future<List<QueryDocumentSnapshot>> getMutualFollowerUsers(
       List mutualFollowList) async {
     for (var follow in mutualFollowList) {
-      await FirebaseFirestore.instance
+      await _fireStore
           .collection('users')
           .where('uid', isEqualTo: follow)
           .get()

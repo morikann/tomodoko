@@ -14,6 +14,8 @@ class FriendRequestListScreen extends StatefulWidget {
 
 class _FriendRequestListScreenState extends State<FriendRequestListScreen> {
   List<QueryDocumentSnapshot> documentSnapshotList = [];
+  final _auth = FirebaseAuth.instance;
+  final _fireStore = FirebaseFirestore.instance;
 
   Future<List<QueryDocumentSnapshot>> getRequestFuture() async {
     final followerList = await getFollowerUsers();
@@ -25,10 +27,9 @@ class _FriendRequestListScreenState extends State<FriendRequestListScreen> {
   Future<List> getFollowerUsers() async {
     documentSnapshotList = [];
     var followerList = [];
-    await FirebaseFirestore.instance
+    await _fireStore
         .collection('follows')
-        .where('followed_uid',
-            isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+        .where('followed_uid', isEqualTo: _auth.currentUser?.uid)
         .get()
         .then((QuerySnapshot snapshot) async {
       for (var doc in snapshot.docs) {
@@ -42,10 +43,9 @@ class _FriendRequestListScreenState extends State<FriendRequestListScreen> {
     var followingList = [];
     var requestList = [];
 
-    await FirebaseFirestore.instance
+    await _fireStore
         .collection('follows')
-        .where('following_uid',
-            isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+        .where('following_uid', isEqualTo: _auth.currentUser?.uid)
         .get()
         .then((QuerySnapshot snapshot) async {
       for (var doc in snapshot.docs) {
@@ -65,7 +65,7 @@ class _FriendRequestListScreenState extends State<FriendRequestListScreen> {
   Future<List<QueryDocumentSnapshot>> getRequestUserInfo(
       List requestUsers) async {
     for (var uid in requestUsers) {
-      await FirebaseFirestore.instance
+      await _fireStore
           .collection('users')
           .where('uid', isEqualTo: uid)
           .get()
@@ -86,8 +86,8 @@ class _FriendRequestListScreenState extends State<FriendRequestListScreen> {
   }
 
   Future<void> approveRequest(String friendUid) async {
-    await FirebaseFirestore.instance.collection('follows').add({
-      'following_uid': FirebaseAuth.instance.currentUser?.uid,
+    await _fireStore.collection('follows').add({
+      'following_uid': _auth.currentUser?.uid,
       'followed_uid': friendUid,
     }).then((_) async {
       // リビルドしてFutureBuilderのfutureを発火
@@ -96,11 +96,10 @@ class _FriendRequestListScreenState extends State<FriendRequestListScreen> {
   }
 
   Future<void> denyRequest(String friendUid) async {
-    await FirebaseFirestore.instance
+    await _fireStore
         .collection('follows')
         .where('following_uid', isEqualTo: friendUid)
-        .where('followed_uid',
-            isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+        .where('followed_uid', isEqualTo: _auth.currentUser?.uid)
         .get()
         .then((QuerySnapshot snapshot) async {
       final docId = snapshot.docs.first.id;
@@ -109,11 +108,7 @@ class _FriendRequestListScreenState extends State<FriendRequestListScreen> {
   }
 
   Future<void> removeRequest(String docId) async {
-    await FirebaseFirestore.instance
-        .collection('follows')
-        .doc(docId)
-        .delete()
-        .then(
+    await _fireStore.collection('follows').doc(docId).delete().then(
       (_) async {
         setState(() {});
       },
