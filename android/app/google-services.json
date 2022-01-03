@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "380878671688",
-    "project_id": "tomodoko-m-9f826",
-    "storage_bucket": "tomodoko-m-9f826.appspot.com"
+    "project_number": "563698813403",
+    "project_id": "tomodoko-eb07b",
+    "storage_bucket": "tomodoko-eb07b.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:380878671688:android:f4fbd08027f738abf4ad7d",
+        "mobilesdk_app_id": "1:563698813403:android:83bd8a064909c61e57fffe",
         "android_client_info": {
-          "package_name": "com.example.tomodoko"
+          "package_name": "com.mk.tomodoko"
         }
       },
       "oauth_client": [
         {
-          "client_id": "380878671688-pati9it0udrlru9f93cl57r5er3dlorh.apps.googleusercontent.com",
+          "client_id": "563698813403-r9fsrd5ccer5kkam4eed6t2vfdtaj3hr.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyA8M-09zyepQFG9O_2RMV-pC3NplP9GDEU"
+          "current_key": "AIzaSyCEdr93rufDB_GxE8DKMZWf1w6a8jKOlfo"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "380878671688-pati9it0udrlru9f93cl57r5er3dlorh.apps.googleusercontent.com",
+              "client_id": "563698813403-r9fsrd5ccer5kkam4eed6t2vfdtaj3hr.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
