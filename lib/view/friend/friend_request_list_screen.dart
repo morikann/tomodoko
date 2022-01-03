@@ -13,41 +13,41 @@ class FriendRequestListScreen extends StatefulWidget {
 }
 
 class _FriendRequestListScreenState extends State<FriendRequestListScreen> {
-  Future<QuerySnapshot>? requestUsersFuture;
-  bool _loading = false;
+  List<QueryDocumentSnapshot> documentSnapshotList = [];
 
-  void getFollowerUsers() {
-    setState(() {
-      _loading = true;
-    });
+  Future<List<QueryDocumentSnapshot>> getRequestFuture() async {
+    final followerList = await getFollowerUsers();
+    final requestUsersList = await getRequestUsers(followerList);
+    documentSnapshotList = await getRequestUserInfo(requestUsersList);
+    return documentSnapshotList;
+  }
+
+  Future<List> getFollowerUsers() async {
+    documentSnapshotList = [];
     var followerList = [];
-    FirebaseFirestore.instance
+    await FirebaseFirestore.instance
         .collection('follows')
         .where('followed_uid',
             isEqualTo: FirebaseAuth.instance.currentUser?.uid)
         .get()
-        .then((QuerySnapshot snapshot) {
+        .then((QuerySnapshot snapshot) async {
       for (var doc in snapshot.docs) {
         followerList.add(doc["following_uid"]);
       }
-      getRequestUsers(followerList);
-    }).catchError((e) {
-      setState(() {
-        _loading = false;
-      });
     });
+    return followerList;
   }
 
-  void getRequestUsers(List followerList) {
+  Future<List> getRequestUsers(List followerList) async {
     var followingList = [];
     var requestList = [];
 
-    FirebaseFirestore.instance
+    await FirebaseFirestore.instance
         .collection('follows')
         .where('following_uid',
             isEqualTo: FirebaseAuth.instance.currentUser?.uid)
         .get()
-        .then((QuerySnapshot snapshot) {
+        .then((QuerySnapshot snapshot) async {
       for (var doc in snapshot.docs) {
         followingList.add(doc["followed_uid"]);
       }
@@ -57,22 +57,23 @@ class _FriendRequestListScreenState extends State<FriendRequestListScreen> {
           requestList.add(follower);
         }
       }
-      getRequestUserInfo(requestList);
-    }).catchError((e) {
-      setState(() {
-        _loading = false;
-      });
     });
+
+    return requestList;
   }
 
-  void getRequestUserInfo(List requestUsers) {
-    requestUsersFuture = FirebaseFirestore.instance
-        .collection('users')
-        .where('uid', whereIn: requestUsers)
-        .get();
-    setState(() {
-      _loading = false;
-    });
+  Future<List<QueryDocumentSnapshot>> getRequestUserInfo(
+      List requestUsers) async {
+    for (var uid in requestUsers) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .where('uid', isEqualTo: uid)
+          .get()
+          .then((QuerySnapshot snapshot) {
+        documentSnapshotList.add(snapshot.docs.first);
+      });
+    }
+    return documentSnapshotList;
   }
 
   String updateTime(Timestamp? date) {
@@ -84,11 +85,39 @@ class _FriendRequestListScreenState extends State<FriendRequestListScreen> {
     return "更新日: ${dateFormat.format(dateTime)}";
   }
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    getFollowerUsers();
+  Future<void> approveRequest(String friendUid) async {
+    await FirebaseFirestore.instance.collection('follows').add({
+      'following_uid': FirebaseAuth.instance.currentUser?.uid,
+      'followed_uid': friendUid,
+    }).then((_) async {
+      // リビルドしてFutureBuilderのfutureを発火
+      setState(() {});
+    }).catchError((e) => print(e));
+  }
+
+  Future<void> denyRequest(String friendUid) async {
+    await FirebaseFirestore.instance
+        .collection('follows')
+        .where('following_uid', isEqualTo: friendUid)
+        .where('followed_uid',
+            isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+        .get()
+        .then((QuerySnapshot snapshot) async {
+      final docId = snapshot.docs.first.id;
+      await removeRequest(docId);
+    }).catchError((e) => print(e));
+  }
+
+  Future<void> removeRequest(String docId) async {
+    await FirebaseFirestore.instance
+        .collection('follows')
+        .doc(docId)
+        .delete()
+        .then(
+      (_) async {
+        setState(() {});
+      },
+    ).catchError((e) => print(e));
   }
 
   @override
@@ -101,82 +130,138 @@ class _FriendRequestListScreenState extends State<FriendRequestListScreen> {
         ),
       ),
       body: SafeArea(
-        child: _loading
-            ? const Center(
+        child: FutureBuilder(
+          future: getRequestFuture(),
+          builder: (BuildContext context,
+              AsyncSnapshot<List<QueryDocumentSnapshot>> snapshot) {
+            if (snapshot.hasError) {
+              return const Text('Something went wrong');
+            }
+
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
                 child: CircularProgressIndicator(),
-              )
-            : FutureBuilder<QuerySnapshot>(
-                future: requestUsersFuture,
-                builder: (BuildContext context,
-                    AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot.hasError) {
-                    return const Text('Something went wrong');
-                  }
+              );
+            }
 
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(
+                child: Text(
+                  '友だちリクエストはありません',
+                  style: TextStyle(fontSize: 16),
+                ),
+              );
+            }
 
-                  if (!snapshot.hasData) {
-                    return const Center(
-                      child: Text(
-                        '友だちリクエストはありません',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    );
-                  }
-                  return ListView(
-                    children: snapshot.data!.docs.map(
-                      (DocumentSnapshot document) {
-                        Map<String, dynamic> data =
-                            document.data()! as Map<String, dynamic>;
-                        return Card(
-                          elevation: 2,
-                          child: ListTile(
-                            onTap: () {},
-                            leading: data['imgURL'] == null
-                                ? CircleAvatar(
-                                    backgroundColor: Colors.blue.shade200,
-                                    radius: 20,
-                                    child: const CircleAvatar(
-                                      radius: 19,
-                                      backgroundImage:
-                                          AssetImage('images/default.png'),
-                                      backgroundColor: Colors.white,
-                                    ),
-                                  )
-                                : CircleAvatar(
-                                    backgroundColor: Colors.blue.shade200,
-                                    radius: 20,
-                                    child: CircleAvatar(
-                                      radius: 19,
-                                      backgroundImage:
-                                          NetworkImage(data['imgURL']),
-                                    ),
-                                  ),
-                            title: Text(
-                              data['name'],
-                              style: const TextStyle(
-                                fontSize: 18,
-                              ),
+            return ListView(
+              children: snapshot.data!.map(
+                (DocumentSnapshot document) {
+                  Map<String, dynamic> data =
+                      document.data()! as Map<String, dynamic>;
+                  return ListTile(
+                    leading: data['imgURL'] == null
+                        ? CircleAvatar(
+                            backgroundColor: Colors.blue.shade200,
+                            radius: 20,
+                            child: const CircleAvatar(
+                              radius: 19,
+                              backgroundImage: AssetImage('images/default.png'),
+                              backgroundColor: Colors.white,
                             ),
-                            dense: true,
-                            subtitle: Text(
-                              updateTime(data['updated_at']),
-                              style: const TextStyle(
-                                fontSize: 12,
-                              ),
+                          )
+                        : CircleAvatar(
+                            backgroundColor: Colors.blue.shade200,
+                            radius: 20,
+                            child: CircleAvatar(
+                              radius: 19,
+                              backgroundImage: NetworkImage(data['imgURL']),
                             ),
-                            trailing: const Icon(Icons.arrow_right),
                           ),
-                        );
-                      },
-                    ).toList(),
+                    title: Text(
+                      data['name'],
+                      style: const TextStyle(
+                        fontSize: 18,
+                      ),
+                    ),
+                    subtitle: Text(
+                      updateTime(data['updated_at']),
+                      style: const TextStyle(
+                        fontSize: 12,
+                      ),
+                    ),
+                    trailing: Wrap(
+                      spacing: 10,
+                      children: [
+                        RequestButton(
+                          label: '承認',
+                          textColor: Colors.white,
+                          backgroundColor: Colors.blue,
+                          onTap: () async {
+                            await approveRequest(data['uid']);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                backgroundColor: Colors.green,
+                                content: Text('承認しました'),
+                              ),
+                            );
+                          },
+                        ),
+                        RequestButton(
+                          label: '削除',
+                          textColor: Colors.black,
+                          backgroundColor: Colors.grey.shade300,
+                          onTap: () async {
+                            await denyRequest(data['uid']);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                backgroundColor: Colors.red,
+                                content: Text('削除しました'),
+                              ),
+                            );
+                          },
+                        )
+                      ],
+                    ),
                   );
                 },
-              ),
+              ).toList(),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class RequestButton extends StatelessWidget {
+  final String label;
+  final Color textColor;
+  final Color backgroundColor;
+  final VoidCallback onTap;
+  const RequestButton({
+    Key? key,
+    required this.label,
+    required this.textColor,
+    required this.backgroundColor,
+    required this.onTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: backgroundColor,
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: textColor,
+          ),
+        ),
       ),
     );
   }

@@ -51,9 +51,9 @@ class _UserListScreenState extends State<UserListScreen> {
 
   void getFollowerUsers(List followList) async {
     var mutualFollowList = [];
+    var followerList = [];
 
-    // 空配列に対してwhereInを使用するとエラーが吐かれるので、
-    // 空の場合はloadingを止めて早期リターン
+    // followしているユーザーがいなかったら即リターン
     if (followList.isEmpty) {
       setState(() {
         _loading = false;
@@ -63,13 +63,17 @@ class _UserListScreenState extends State<UserListScreen> {
 
     FirebaseFirestore.instance
         .collection('follows')
-        .where('following_uid', whereIn: followList)
         .where('followed_uid',
             isEqualTo: FirebaseAuth.instance.currentUser?.uid)
         .get()
         .then((QuerySnapshot snapshot) {
       for (var doc in snapshot.docs) {
-        mutualFollowList.add(doc["following_uid"]);
+        followerList.add(doc["following_uid"]);
+      }
+      for (var follow in followList) {
+        if (followerList.contains(follow)) {
+          mutualFollowList.add(follow);
+        }
       }
       // 重複を無くす
       mutualFollowList = mutualFollowList.toSet().toList();
