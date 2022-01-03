@@ -24,15 +24,20 @@ class _UserListScreenState extends State<UserListScreen> {
   Icon customIcon = const Icon(Icons.search);
   Widget customSearchBar = const Text('ホーム', style: TextStyle(fontSize: 18));
   String? searchWord;
-  bool _loading = false;
+  List<QueryDocumentSnapshot> mutualSnapshotList = [];
 
-  void getFollowingUsers() {
+  Future<List<QueryDocumentSnapshot>> getMutualFuture() async {
+    final followList = await getFollowingUsers();
+    final mutualFollowList = await getFollowerUsers(followList);
+    mutualSnapshotList = await getMutualFollowerUsers(mutualFollowList);
+    return mutualSnapshotList;
+  }
+
+  Future<List> getFollowingUsers() async {
     var followList = [];
-    setState(() {
-      _loading = true;
-    });
+    mutualSnapshotList = [];
 
-    FirebaseFirestore.instance
+    await FirebaseFirestore.instance
         .collection('follows')
         .where('following_uid',
             isEqualTo: FirebaseAuth.instance.currentUser?.uid)
@@ -41,27 +46,21 @@ class _UserListScreenState extends State<UserListScreen> {
       for (var doc in snapshot.docs) {
         followList.add(doc["followed_uid"]);
       }
-      getFollowerUsers(followList);
-    }).catchError((e) {
-      setState(() {
-        _loading = false;
-      });
     });
+
+    return followList;
   }
 
-  void getFollowerUsers(List followList) async {
+  Future<List> getFollowerUsers(List followList) async {
     var mutualFollowList = [];
     var followerList = [];
 
     // followしているユーザーがいなかったら即リターン
     if (followList.isEmpty) {
-      setState(() {
-        _loading = false;
-      });
-      return;
+      return mutualFollowList;
     }
 
-    FirebaseFirestore.instance
+    await FirebaseFirestore.instance
         .collection('follows')
         .where('followed_uid',
             isEqualTo: FirebaseAuth.instance.currentUser?.uid)
@@ -77,22 +76,23 @@ class _UserListScreenState extends State<UserListScreen> {
       }
       // 重複を無くす
       mutualFollowList = mutualFollowList.toSet().toList();
-      getMutualFollowerUsers(mutualFollowList);
-    }).catchError((e) {
-      setState(() {
-        _loading = false;
-      });
     });
+
+    return mutualFollowList;
   }
 
-  void getMutualFollowerUsers(List mutualUsers) {
-    mutualFollowers = FirebaseFirestore.instance
-        .collection('users')
-        .where('uid', whereIn: mutualUsers)
-        .get();
-    setState(() {
-      _loading = false;
-    });
+  Future<List<QueryDocumentSnapshot>> getMutualFollowerUsers(
+      List mutualFollowList) async {
+    for (var follow in mutualFollowList) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .where('uid', isEqualTo: follow)
+          .get()
+          .then((QuerySnapshot snapshot) {
+        mutualSnapshotList.add(snapshot.docs.first);
+      });
+    }
+    return mutualSnapshotList;
   }
 
   void getLocation() async {
@@ -140,7 +140,6 @@ class _UserListScreenState extends State<UserListScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    getFollowingUsers();
     // 呼び出し時に一回発火して、その後10秒毎に発火
     getLocation();
     _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
@@ -221,113 +220,108 @@ class _UserListScreenState extends State<UserListScreen> {
         // ],
       ),
       body: SafeArea(
-        child: _loading
-            ? const Center(
+        child: FutureBuilder(
+          // stream: (searchWord != '' && searchWord != null)
+          //     ? FirebaseFirestore.instance // searchWordから始まる文字の検索(LIKE検索っぽい)
+          //         .collection('users')
+          //         .orderBy('name')
+          //         .startAt([searchWord]).endAt(
+          //             ['$searchWord\uf8ff']).snapshots()
+          //     : mutualFollowers,
+          future: getMutualFuture(),
+          builder: (BuildContext context,
+              AsyncSnapshot<List<QueryDocumentSnapshot>> snapshot) {
+            if (snapshot.hasError) {
+              return const Text('Something went wrong');
+            }
+
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
                 child: CircularProgressIndicator(),
-              )
-            : FutureBuilder<QuerySnapshot>(
-                // stream: (searchWord != '' && searchWord != null)
-                //     ? FirebaseFirestore.instance // searchWordから始まる文字の検索(LIKE検索っぽい)
-                //         .collection('users')
-                //         .orderBy('name')
-                //         .startAt([searchWord]).endAt(
-                //             ['$searchWord\uf8ff']).snapshots()
-                //     : mutualFollowers,
-                future: mutualFollowers,
-                builder: (BuildContext context,
-                    AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot.hasError) {
-                    return const Text('Something went wrong');
-                  }
+              );
+            }
 
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-
-                  if (!snapshot.hasData) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Text(
-                            '友だちを追加しよう！',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey,
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Icon(
-                            Icons.arrow_downward,
-                            color: Colors.grey,
-                          )
-                        ],
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Text(
+                      '友だちを追加しよう！',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey,
                       ),
-                    );
-                  }
+                    ),
+                    SizedBox(height: 8),
+                    Icon(
+                      Icons.arrow_downward,
+                      color: Colors.grey,
+                    )
+                  ],
+                ),
+              );
+            }
 
-                  return ListView(
-                    children: snapshot.data!.docs.map(
-                      (DocumentSnapshot document) {
-                        Map<String, dynamic> data =
-                            document.data()! as Map<String, dynamic>;
-                        return Card(
-                          elevation: 2,
-                          child: ListTile(
-                            onTap: () {
-                              Navigator.of(context).pushNamed(
-                                UserDetailScreen.id,
-                                arguments: UserDetailScreenArguments(
-                                  data['uid'],
-                                  data['name'],
-                                  _timer.cancel,
-                                ),
-                              );
-                            },
-                            leading: data['imgURL'] == null
-                                ? CircleAvatar(
-                                    backgroundColor: Colors.blue.shade200,
-                                    radius: 20,
-                                    child: const CircleAvatar(
-                                      radius: 19,
-                                      backgroundImage:
-                                          AssetImage('images/default.png'),
-                                      backgroundColor: Colors.white,
-                                    ),
-                                  )
-                                : CircleAvatar(
-                                    backgroundColor: Colors.blue.shade200,
-                                    radius: 20,
-                                    child: CircleAvatar(
-                                      radius: 19,
-                                      backgroundImage:
-                                          NetworkImage(data['imgURL']),
-                                    ),
-                                  ),
-                            title: Text(
-                              data['name'],
-                              style: const TextStyle(
-                                fontSize: 18,
-                              ),
-                            ),
-                            dense: true,
-                            subtitle: Text(
-                              updateTime(data['updated_at']),
-                              style: const TextStyle(
-                                fontSize: 12,
-                              ),
-                            ),
-                            trailing: const Icon(Icons.arrow_right),
+            return ListView(
+              children: snapshot.data!.map(
+                (DocumentSnapshot document) {
+                  Map<String, dynamic> data =
+                      document.data()! as Map<String, dynamic>;
+                  return Card(
+                    elevation: 2,
+                    child: ListTile(
+                      onTap: () {
+                        Navigator.of(context).pushNamed(
+                          UserDetailScreen.id,
+                          arguments: UserDetailScreenArguments(
+                            data['uid'],
+                            data['name'],
+                            _timer.cancel,
                           ),
                         );
                       },
-                    ).toList(),
+                      leading: data['imgURL'] == null
+                          ? CircleAvatar(
+                              backgroundColor: Colors.blue.shade200,
+                              radius: 20,
+                              child: const CircleAvatar(
+                                radius: 19,
+                                backgroundImage:
+                                    AssetImage('images/default.png'),
+                                backgroundColor: Colors.white,
+                              ),
+                            )
+                          : CircleAvatar(
+                              backgroundColor: Colors.blue.shade200,
+                              radius: 20,
+                              child: CircleAvatar(
+                                radius: 19,
+                                backgroundImage: NetworkImage(data['imgURL']),
+                              ),
+                            ),
+                      title: Text(
+                        data['name'],
+                        style: const TextStyle(
+                          fontSize: 18,
+                        ),
+                      ),
+                      dense: true,
+                      subtitle: Text(
+                        updateTime(data['updated_at']),
+                        style: const TextStyle(
+                          fontSize: 12,
+                        ),
+                      ),
+                      trailing: const Icon(Icons.arrow_right),
+                    ),
                   );
                 },
-              ),
+              ).toList(),
+            );
+          },
+        ),
       ),
     );
   }
