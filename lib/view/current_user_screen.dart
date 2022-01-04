@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:tomodoko/component/common_button.dart';
 import 'package:tomodoko/view/friend/friend_request_list_screen.dart';
 import 'user_edit_screen.dart';
 import 'welcome_screen.dart';
@@ -51,34 +50,22 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await showDialog<AlertDialog>(
+            onPressed: () {
+              showModalBottomSheet(
                 context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text('ログアウトしますか？'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () async {
-                          await _auth.signOut();
-                          Navigator.of(context)
-                              .pushReplacementNamed(WelcomeScreen.id);
-                        },
-                        child: const Text('OK'),
-                      )
-                    ],
-                  );
-                },
+                builder: buildBottomSheet,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(16),
+                  ),
+                ),
+                isScrollControlled: true,
               );
             },
-          )
+            icon: const Icon(
+              Icons.dehaze,
+            ),
+          ),
         ],
       ),
       body: ModalProgressHUD(
@@ -171,20 +158,138 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
                     ),
                   ),
                 ),
-                // const Spacer(),
-                const SizedBox(height: 20),
-                CommonButton(
-                  name: '友だちリクエスト',
-                  onPressed: () {
-                    Navigator.of(context).pushNamed(FriendRequestListScreen.id);
-                  },
-                  backgroundColor: Colors.blue,
-                  textColor: Colors.white,
-                ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget buildBottomSheet(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 40),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.grey.shade400,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.only(bottom: 10),
+          ),
+          ListTile(
+            leading: const Icon(
+              Icons.tag_faces,
+              color: Colors.black,
+              size: 32,
+            ),
+            title: const Text(
+              '友達リクエスト',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            onTap: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pushNamed(FriendRequestListScreen.id);
+            },
+          ),
+          ListTile(
+            leading: const Icon(
+              Icons.logout,
+              color: Colors.black,
+              size: 32,
+            ),
+            title: const Text(
+              'ログアウト',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            onTap: () async {
+              await showDialog<AlertDialog>(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('ログアウトしますか？'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          await _auth.signOut();
+                          Navigator.of(context)
+                              .pushReplacementNamed(WelcomeScreen.id);
+                        },
+                        child: const Text('OK'),
+                      )
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(
+              Icons.warning,
+              color: Colors.black,
+              size: 32,
+            ),
+            title: const Text(
+              '退会',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            onTap: () async {
+              await showDialog<AlertDialog>(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('退会'),
+                    content: const Text(
+                        '一度退会すると、過去のデータの全てが消去されます。この操作は元に戻すことはできません。それでも退会しますか？'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          final data = {
+                            'uid': _auth.currentUser?.uid,
+                            'createdAt': Timestamp.now(),
+                          };
+                          await FirebaseFirestore.instance
+                              .collection('deleted_users')
+                              .add(data)
+                              .then((_) async => {
+                                    await _auth.signOut(),
+                                    Navigator.of(context)
+                                        .pushReplacementNamed(WelcomeScreen.id),
+                                  })
+                              .catchError(
+                                  (e) => print('Failed to add user $e'));
+                        },
+                        child: const Text('退会する'),
+                      )
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
     );
   }
