@@ -256,6 +256,8 @@ class _UserEditScreenState extends State<UserEditScreen> {
                                     },
                                     onSaved: (value) {
                                       inputUsername = value!;
+                                      // 文字の前後の空白を消す
+                                      inputUsername = inputUsername.trim();
                                     },
                                   ),
                                 ],

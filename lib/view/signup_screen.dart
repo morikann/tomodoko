@@ -101,6 +101,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                 onSaved: (value) {
                                   setState(() {
                                     username = value!;
+                                    username = username.trim();
                                   });
                                 },
                               ),
