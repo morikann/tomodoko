@@ -107,7 +107,7 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
                               backgroundColor: Colors.white,
                             ),
                           ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 15),
                           Text(
                             data['name'] ?? '',
                             textAlign: TextAlign.center,
@@ -126,7 +126,7 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
                   },
                 ),
                 const SizedBox(
-                  height: 50,
+                  height: 60,
                 ),
                 SizedBox(
                   height: 45,
