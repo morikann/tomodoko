@@ -56,7 +56,7 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
             (route) => false,
           );
         },
-        backgroundColor: Colors.grey.shade300,
+        backgroundColor: Colors.grey.shade200,
         child: const Icon(
           Icons.close,
           size: 28,
