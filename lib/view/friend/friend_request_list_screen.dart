@@ -160,7 +160,7 @@ class _FriendRequestListScreenState extends State<FriendRequestListScreen> {
                   return ListTile(
                     leading: data['imgURL'] == null
                         ? CircleAvatar(
-                            backgroundColor: Colors.blue.shade200,
+                            backgroundColor: Colors.grey.shade400,
                             radius: 20,
                             child: const CircleAvatar(
                               radius: 19,
@@ -169,7 +169,7 @@ class _FriendRequestListScreenState extends State<FriendRequestListScreen> {
                             ),
                           )
                         : CircleAvatar(
-                            backgroundColor: Colors.blue.shade200,
+                            backgroundColor: Colors.grey.shade400,
                             radius: 20,
                             child: CircleAvatar(
                               radius: 19,

@@ -56,12 +56,11 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
             (route) => false,
           );
         },
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        backgroundColor: Colors.grey.shade300,
         child: const Icon(
-          Icons.cancel_outlined,
-          size: 42,
-          color: Colors.grey,
+          Icons.close,
+          size: 28,
+          color: Colors.black,
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -99,11 +98,11 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
                     children: [
                       const SizedBox(height: 80),
                       CircleAvatar(
-                        backgroundColor: Colors.blue,
+                        backgroundColor: Colors.grey.shade400,
                         radius: 80,
                         child: CircleAvatar(
                           backgroundImage: _imageProvider(data['imgURL']),
-                          radius: 78,
+                          radius: 79,
                           backgroundColor: Colors.white,
                         ),
                       ),
