@@ -185,14 +185,9 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
             leading: const Icon(
               Icons.tag_faces,
               color: Colors.black,
-              size: 32,
+              size: 28,
             ),
-            title: const Text(
-              '友達リクエスト',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            title: const Text('友達リクエスト'),
             onTap: () {
               Navigator.of(context).pop();
               Navigator.of(context).pushNamed(FriendRequestListScreen.id);
@@ -202,14 +197,9 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
             leading: const Icon(
               Icons.logout,
               color: Colors.black,
-              size: 32,
+              size: 28,
             ),
-            title: const Text(
-              'ログアウト',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            title: const Text('ログアウト'),
             onTap: () async {
               await showDialog<AlertDialog>(
                 context: context,
@@ -241,14 +231,9 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
             leading: const Icon(
               Icons.warning,
               color: Colors.black,
-              size: 32,
+              size: 28,
             ),
-            title: const Text(
-              '退会',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            title: const Text('退会'),
             onTap: () async {
               await showDialog<AlertDialog>(
                 context: context,
