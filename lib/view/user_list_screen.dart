@@ -283,7 +283,7 @@ class _UserListScreenState extends State<UserListScreen> {
                       },
                       leading: data['imgURL'] == null
                           ? CircleAvatar(
-                              backgroundColor: Colors.blue.shade200,
+                              backgroundColor: Colors.grey.shade400,
                               radius: 20,
                               child: const CircleAvatar(
                                 radius: 19,
@@ -293,7 +293,7 @@ class _UserListScreenState extends State<UserListScreen> {
                               ),
                             )
                           : CircleAvatar(
-                              backgroundColor: Colors.blue.shade200,
+                              backgroundColor: Colors.grey.shade400,
                               radius: 20,
                               child: CircleAvatar(
                                 radius: 19,

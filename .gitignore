@@ -47,3 +47,5 @@ app.*.map.json
 
 tomodoko.jks
 android/key.properties
+
+functions/node_modules/

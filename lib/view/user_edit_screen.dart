@@ -175,12 +175,12 @@ class _UserEditScreenState extends State<UserEditScreen> {
                         return Column(
                           children: [
                             CircleAvatar(
-                              backgroundColor: Colors.blue,
+                              backgroundColor: Colors.grey.shade400,
                               radius: 80,
                               child: CircleAvatar(
                                 backgroundImage: imageManager
                                     .getImageProvider(data['imgURL']),
-                                radius: 78,
+                                radius: 79,
                                 backgroundColor: Colors.white,
                                 child: Stack(
                                   children: [
@@ -256,6 +256,8 @@ class _UserEditScreenState extends State<UserEditScreen> {
                                     },
                                     onSaved: (value) {
                                       inputUsername = value!;
+                                      // 文字の前後の空白を消す
+                                      inputUsername = inputUsername.trim();
                                     },
                                   ),
                                 ],
