@@ -7,9 +7,15 @@ class Firestore {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
   bool _nameExists = false;
+  User? _currentUser;
 
   bool get nameExists {
     return _nameExists;
+  }
+
+  bool isLogin() {
+    _currentUser = _auth.currentUser;
+    return _currentUser != null;
   }
 
   Future<void> checkNameExists(String name) async {
