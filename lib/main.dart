@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tomodoko/services/firestore.dart';
 import 'package:tomodoko/view/friend/friend_add_screen.dart';
 import 'package:tomodoko/view/friend/friend_request_list_screen.dart';
 import 'package:tomodoko/view/friend/friend_request_screen.dart';
@@ -33,7 +34,7 @@ class Tomodoko extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: WelcomeScreen.id,
+      initialRoute: Firestore().isLogin() ? HomeScreen.id : WelcomeScreen.id,
       routes: {
         WelcomeScreen.id: (context) => const WelcomeScreen(),
         SignupScreen.id: (context) => const SignupScreen(),
