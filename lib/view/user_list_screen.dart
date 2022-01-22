@@ -110,7 +110,7 @@ class _UserListScreenState extends State<UserListScreen> {
       _loadToggle = false;
     });
     if (_isToggle) {
-      updateLocationInfo();
+      await updateLocationInfo();
     }
   }
 
@@ -139,6 +139,9 @@ class _UserListScreenState extends State<UserListScreen> {
       if (_timer != null) {
         _timer!.cancel();
       }
+      return;
+    }
+    if (_auth.currentUser == null) {
       return;
     }
     final _uid = _auth.currentUser!.uid;

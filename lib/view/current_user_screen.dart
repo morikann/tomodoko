@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tomodoko/view/friend/friend_request_list_screen.dart';
 import 'user_edit_screen.dart';
 import 'welcome_screen.dart';
-import 'dart:io';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 class CurrentUserScreen extends StatefulWidget {
@@ -16,15 +15,9 @@ class CurrentUserScreen extends StatefulWidget {
 
 class _CurrentUserScreenState extends State<CurrentUserScreen> {
   final _auth = FirebaseAuth.instance;
-  File? _imageFile;
   bool showSpinner = false;
 
   ImageProvider _imageProvider(imgPath) {
-    // 画像の選択があったら表示
-    if (_imageFile != null) {
-      return FileImage(_imageFile!);
-    }
-
     // cloud_storageに画像があったら表示
     if (imgPath != null) {
       return NetworkImage(imgPath);
@@ -88,41 +81,41 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
                       return const Text('Something went wrong');
                     }
 
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+
                     if (snapshot.data?.data() == null) {
                       return const Center(
                         child: Text('ログインしてください'),
                       );
                     }
 
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      Map<String, dynamic> data =
-                          snapshot.data?.data() as Map<String, dynamic>;
-                      return Column(
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: Colors.grey.shade400,
-                            radius: 80,
-                            child: CircleAvatar(
-                              backgroundImage: _imageProvider(data['imgURL']),
-                              radius: 79,
-                              backgroundColor: Colors.white,
-                            ),
+                    Map<String, dynamic> data =
+                        snapshot.data?.data() as Map<String, dynamic>;
+                    return Column(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: Colors.grey.shade400,
+                          radius: 80,
+                          child: CircleAvatar(
+                            backgroundImage: _imageProvider(data['imgURL']),
+                            radius: 79,
+                            backgroundColor: Colors.white,
                           ),
-                          const SizedBox(height: 15),
-                          Text(
-                            data['name'] ?? '',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 26,
-                            ),
+                        ),
+                        const SizedBox(height: 15),
+                        Text(
+                          data['name'] ?? '',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 26,
                           ),
-                        ],
-                      );
-                    }
-
-                    return const Center(
-                      child: CircularProgressIndicator(),
+                        ),
+                      ],
                     );
                   },
                 ),
