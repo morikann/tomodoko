@@ -259,6 +259,7 @@ class _UserListScreenState extends State<UserListScreen> {
                                       arguments: UserDetailScreenArguments(
                                         data['uid'],
                                         data['name'],
+                                        data['imgURL'],
                                       ),
                                     );
                                   },
