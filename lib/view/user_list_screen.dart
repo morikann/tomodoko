@@ -200,6 +200,7 @@ class _UserListScreenState extends State<UserListScreen> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       appBar: AppBar(
+        centerTitle: true,
         title: const Text(
           '友だち一覧',
           style: TextStyle(

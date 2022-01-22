@@ -123,6 +123,7 @@ class _FriendRequestListScreenState extends State<FriendRequestListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Text(
           '友だちリクエスト',
           style: TextStyle(fontSize: 18),

@@ -65,6 +65,7 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       appBar: AppBar(
+        centerTitle: true,
         automaticallyImplyLeading: false,
         title: const Text(
           '友だち追加',
