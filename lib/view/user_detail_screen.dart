@@ -10,13 +10,11 @@ class UserDetailScreen extends StatefulWidget {
   static const id = 'user_detail_screen';
   final String opponentUid;
   final String opponentName;
-  final Function timerCancel;
 
   const UserDetailScreen({
     Key? key,
     required this.opponentUid,
     required this.opponentName,
-    required this.timerCancel,
   }) : super(key: key);
 
   @override
@@ -114,39 +112,6 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        // actions: [
-        //   IconButton(
-        //     icon: const Icon(Icons.logout),
-        //     onPressed: () async {
-        //       await showDialog<AlertDialog>(
-        //         context: context,
-        //         builder: (context) {
-        //           return AlertDialog(
-        //             title: const Text('ログアウトしますか？'),
-        //             actions: [
-        //               TextButton(
-        //                 onPressed: () {
-        //                   Navigator.of(context).pop();
-        //                 },
-        //                 child: const Text('Cancel'),
-        //               ),
-        //               TextButton(
-        //                 onPressed: () async {
-        //                   await _auth.signOut();
-        //                   // ログアウトしたらタイマーをキャンセル
-        //                   widget.timerCancel();
-        //                   Navigator.of(context)
-        //                       .pushReplacementNamed(WelcomeScreen.id);
-        //                 },
-        //                 child: const Text('OK'),
-        //               )
-        //             ],
-        //           );
-        //         },
-        //       );
-        //     },
-        //   )
-        // ],
       ),
       body: SafeArea(
         child: Padding(
