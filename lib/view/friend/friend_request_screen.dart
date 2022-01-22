@@ -49,21 +49,6 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            HomeScreen.id,
-            (route) => false,
-          );
-        },
-        backgroundColor: Colors.grey.shade200,
-        child: const Icon(
-          Icons.close,
-          size: 28,
-          color: Colors.black,
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       appBar: AppBar(
         centerTitle: true,
         automaticallyImplyLeading: false,
@@ -73,6 +58,19 @@ class _FriendRequestScreenState extends State<FriendRequestScreen> {
             fontSize: 18,
           ),
         ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                HomeScreen.id,
+                (route) => false,
+              );
+            },
+            icon: const Icon(
+              Icons.close,
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Center(
