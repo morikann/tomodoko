@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tomodoko/model/user_detail_screen_arguments.dart';
 import 'package:tomodoko/view/friend/friend_add_screen.dart';
 import 'user_detail_screen.dart';
@@ -19,17 +21,24 @@ class UserListScreen extends StatefulWidget {
 class _UserListScreenState extends State<UserListScreen> {
   final _auth = FirebaseAuth.instance;
   final _fireStore = FirebaseFirestore.instance;
-  late Timer _timer;
+  Timer? _timer;
   Icon customIcon = const Icon(Icons.search);
   Widget customSearchBar = const Text('ホーム', style: TextStyle(fontSize: 18));
   String? searchWord;
   List<QueryDocumentSnapshot> mutualSnapshotList = [];
+  late bool _isToggle;
+  bool _loading = true;
+  bool _loadToggle = true;
 
-  Future<List<QueryDocumentSnapshot>> getMutualFuture() async {
+  Future<void> getMutualUsers() async {
     final followList = await getFollowingUsers();
     final mutualFollowList = await getFollowerUsers(followList);
-    mutualSnapshotList = await getMutualFollowerUsers(mutualFollowList);
-    return mutualSnapshotList;
+    await getMutualFollowerUsers(mutualFollowList).then((mutualFollowers) {
+      setState(() {
+        mutualSnapshotList = mutualFollowers;
+        _loading = false;
+      });
+    });
   }
 
   Future<List> getFollowingUsers() async {
@@ -94,19 +103,46 @@ class _UserListScreenState extends State<UserListScreen> {
     return mutualSnapshotList;
   }
 
-  void getLocation() async {
-    final location = Location();
-    await location.getCurrentLocation();
-    registerLocation(location);
+  Future<void> _load() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isToggle = prefs.getBool('isToggle') ?? false;
+      _loadToggle = false;
+    });
+    if (_isToggle) {
+      updateLocationInfo();
+    }
   }
 
-  void registerLocation(Location location) {
+  Future<void> updateLocationInfo() async {
+    print('位置情報取得開始');
+    await getLocation();
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      getLocation();
+    });
+  }
+
+  Future<void> getLocation() async {
+    final location = Location();
+    await location.getCurrentLocation();
+    await registerLocation(location);
+  }
+
+  Future<void> registerLocation(Location location) async {
     // 緯度か経度が登録されてなかったら更新しない
     if (location.latitude == null || location.longitude == null) {
+      if (_isToggle && mounted) {
+        setState(() {
+          _isToggle = false;
+        });
+      }
+      if (_timer != null) {
+        _timer!.cancel();
+      }
       return;
     }
     final _uid = _auth.currentUser!.uid;
-    _fireStore.collection('users').doc(_uid).update({
+    await _fireStore.collection('users').doc(_uid).update({
       'latitude': location.latitude,
       'longitude': location.longitude,
       'updated_at': DateTime.now(),
@@ -115,7 +151,7 @@ class _UserListScreenState extends State<UserListScreen> {
         print('登録できました');
       },
     ).catchError(
-      (e) => print(e),
+      (e) => print('登録できませんでした。：$e'),
     );
   }
 
@@ -128,22 +164,27 @@ class _UserListScreenState extends State<UserListScreen> {
     return "更新日: ${dateFormat.format(dateTime)}";
   }
 
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    _timer.cancel();
-    super.dispose();
+  Future<void> _setToggleInfoToLocal() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isToggle', _isToggle);
   }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    // 呼び出し時に一回発火して、その後10秒毎に発火
-    getLocation();
-    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      getLocation();
-    });
+    getMutualUsers();
+    _load();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    if (_timer != null) {
+      _timer!.cancel();
+    }
+    _setToggleInfoToLocal();
+    super.dispose();
   }
 
   @override
@@ -165,163 +206,169 @@ class _UserListScreenState extends State<UserListScreen> {
             fontSize: 18,
           ),
         ),
-        // title: customSearchBar,
-        // actions: [
-        //   IconButton(
-        //     onPressed: () async {
-        //       setState(() {
-        //         if (customIcon.icon == Icons.search) {
-        //           customIcon = const Icon(Icons.cancel);
-        //           customSearchBar = Container(
-        //             height: 40,
-        //             decoration: BoxDecoration(
-        //               color: Colors.white,
-        //               borderRadius: BorderRadius.circular(20),
-        //             ),
-        //             child: TextField(
-        //               textAlignVertical: TextAlignVertical.center,
-        //               decoration: const InputDecoration(
-        //                 // 無理矢理paddingをつけて高さを調整しているが、他に方法はないのか...
-        //                 // contentPadding: EdgeInsets.only(top: 5),
-        //                 // -> prefixIconが設定れている時は、verticalAlignとisCollapsedを設定したらできた
-        //                 prefixIcon: Icon(Icons.search),
-        //                 hintText: 'ユーザー検索',
-        //                 hintStyle: TextStyle(
-        //                   color: Colors.grey,
-        //                 ),
-        //                 border: InputBorder.none,
-        //                 isCollapsed: true,
-        //               ),
-        //               style: const TextStyle(
-        //                 color: Colors.black,
-        //               ),
-        //               onChanged: (value) {
-        //                 setState(() {
-        //                   searchWord = value;
-        //                 });
-        //               },
-        //             ),
-        //           );
-        //         } else {
-        //           setState(() {
-        //             searchWord = '';
-        //           });
-        //           customIcon = const Icon(Icons.search);
-        //           customSearchBar = const Text(
-        //             'ホーム',
-        //             style: TextStyle(fontSize: 18),
-        //           );
-        //         }
-        //       });
-        //     },
-        //     icon: customIcon,
-        //   )
-        // ],
       ),
       body: SafeArea(
-        child: FutureBuilder(
-          // stream: (searchWord != '' && searchWord != null)
-          //     ? FirebaseFirestore.instance // searchWordから始まる文字の検索(LIKE検索っぽい)
-          //         .collection('users')
-          //         .orderBy('name')
-          //         .startAt([searchWord]).endAt(
-          //             ['$searchWord\uf8ff']).snapshots()
-          //     : mutualFollowers,
-          future: getMutualFuture(),
-          builder: (BuildContext context,
-              AsyncSnapshot<List<QueryDocumentSnapshot>> snapshot) {
-            if (snapshot.hasError) {
-              return const Text('Something went wrong');
-            }
-
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-
-            if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Text(
-                      '友だちを追加しよう！',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Icon(
-                      Icons.arrow_downward,
-                      color: Colors.grey,
+        child: Column(
+          children: [
+            if (_loadToggle) ...[
+              const SizedBox.shrink(),
+            ] else ...[
+              _buildToggle(),
+            ],
+            Expanded(
+              child: _loading
+                  ? const Center(
+                      child: CircularProgressIndicator(),
                     )
-                  ],
-                ),
-              );
-            }
-
-            return ListView(
-              children: snapshot.data!.map(
-                (DocumentSnapshot document) {
-                  Map<String, dynamic> data =
-                      document.data()! as Map<String, dynamic>;
-                  return Card(
-                    elevation: 2,
-                    child: ListTile(
-                      onTap: () {
-                        Navigator.of(context).pushNamed(
-                          UserDetailScreen.id,
-                          arguments: UserDetailScreenArguments(
-                            data['uid'],
-                            data['name'],
-                            _timer.cancel,
+                  : mutualSnapshotList.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Text(
+                                '友だちを追加しよう！',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Icon(
+                                Icons.arrow_downward,
+                                color: Colors.grey,
+                              )
+                            ],
                           ),
-                        );
-                      },
-                      leading: data['imgURL'] == null
-                          ? CircleAvatar(
-                              backgroundColor: Colors.grey.shade400,
-                              radius: 20,
-                              child: const CircleAvatar(
-                                radius: 19,
-                                backgroundImage:
-                                    AssetImage('images/default.png'),
-                                backgroundColor: Colors.white,
-                              ),
-                            )
-                          : CircleAvatar(
-                              backgroundColor: Colors.grey.shade400,
-                              radius: 20,
-                              child: CircleAvatar(
-                                radius: 19,
-                                backgroundImage: NetworkImage(data['imgURL']),
-                              ),
-                            ),
-                      title: Text(
-                        data['name'],
-                        style: const TextStyle(
-                          fontSize: 18,
+                        )
+                      : ListView(
+                          children: mutualSnapshotList.map(
+                            (DocumentSnapshot document) {
+                              Map<String, dynamic> data =
+                                  document.data()! as Map<String, dynamic>;
+                              return Card(
+                                elevation: 2,
+                                child: ListTile(
+                                  onTap: () {
+                                    Navigator.of(context).pushNamed(
+                                      UserDetailScreen.id,
+                                      arguments: UserDetailScreenArguments(
+                                        data['uid'],
+                                        data['name'],
+                                      ),
+                                    );
+                                  },
+                                  leading: data['imgURL'] == null
+                                      ? CircleAvatar(
+                                          backgroundColor: Colors.grey.shade400,
+                                          radius: 20,
+                                          child: const CircleAvatar(
+                                            radius: 19,
+                                            backgroundImage: AssetImage(
+                                                'images/default.png'),
+                                            backgroundColor: Colors.white,
+                                          ),
+                                        )
+                                      : CircleAvatar(
+                                          backgroundColor: Colors.grey.shade400,
+                                          radius: 20,
+                                          child: CircleAvatar(
+                                            radius: 19,
+                                            backgroundImage:
+                                                NetworkImage(data['imgURL']),
+                                          ),
+                                        ),
+                                  title: Text(
+                                    data['name'],
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                  dense: true,
+                                  subtitle: Text(
+                                    updateTime(data['updated_at']),
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  trailing: const Icon(Icons.arrow_right),
+                                ),
+                              );
+                            },
+                          ).toList(),
                         ),
-                      ),
-                      dense: true,
-                      subtitle: Text(
-                        updateTime(data['updated_at']),
-                        style: const TextStyle(
-                          fontSize: 12,
-                        ),
-                      ),
-                      trailing: const Icon(Icons.arrow_right),
-                    ),
-                  );
-                },
-              ).toList(),
-            );
-          },
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  Future<void> openLocationSettingDialog() async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const SizedBox.shrink(),
+          content: const Text(
+            '現在地を取得できません。友達との距離を計測するには、アプリによる位置情報の利用を設定から許可してください。',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('キャンセル'),
+            ),
+            TextButton(
+              onPressed: () async {
+                bool isOpen = await Geolocator.openAppSettings();
+                if (isOpen) {
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('設定を開く'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildToggle() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Text(
+          '位置情報',
+          style: TextStyle(
+            color: _isToggle ? Colors.blue.shade300 : Colors.grey,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Switch(
+          onChanged: (bool value) async {
+            LocationPermission permission = await Geolocator.checkPermission();
+            if (permission == LocationPermission.denied ||
+                permission == LocationPermission.deniedForever) {
+              await openLocationSettingDialog();
+
+              return;
+            }
+            setState(() {
+              _isToggle = value;
+            });
+            if (_isToggle) {
+              updateLocationInfo();
+            } else {
+              if (_timer != null) {
+                _timer!.cancel();
+              }
+            }
+          },
+          value: _isToggle,
+        ),
+      ],
     );
   }
 }

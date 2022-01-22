@@ -57,7 +57,6 @@ class Tomodoko extends StatelessWidget {
             return UserDetailScreen(
               opponentUid: args.uid,
               opponentName: args.name,
-              timerCancel: args.timerCancel,
             );
           });
         }
