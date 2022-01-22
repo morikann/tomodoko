@@ -8,13 +8,15 @@ import 'package:flutter_compass/flutter_compass.dart';
 
 class UserDetailScreen extends StatefulWidget {
   static const id = 'user_detail_screen';
-  final String opponentUid;
-  final String opponentName;
+  final String friendUid;
+  final String friendName;
+  final String? friendImage;
 
   const UserDetailScreen({
     Key? key,
-    required this.opponentUid,
-    required this.opponentName,
+    required this.friendUid,
+    required this.friendName,
+    required this.friendImage,
   }) : super(key: key);
 
   @override
@@ -27,7 +29,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   double? distance;
   double bearing = 0.0;
   Location myLocation = Location();
-  Location opponentLocation = Location();
+  Location friendLocation = Location();
   final streamController = StreamController();
 
   @override
@@ -59,11 +61,11 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   void addOpponentSubscription() {
     _fireStore
         .collection('users')
-        .doc(widget.opponentUid)
+        .doc(widget.friendUid)
         .snapshots()
         .listen((e) {
-      opponentLocation.latitude = e.data()?['latitude'];
-      opponentLocation.longitude = e.data()?['longitude'];
+      friendLocation.latitude = e.data()?['latitude'];
+      friendLocation.longitude = e.data()?['longitude'];
       if (!mounted) {
         return;
       }
@@ -79,8 +81,8 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
     distance = location.calculateDistance(
       myLocation.latitude,
       myLocation.longitude,
-      opponentLocation.latitude,
-      opponentLocation.longitude,
+      friendLocation.latitude,
+      friendLocation.longitude,
     );
   }
 
@@ -89,8 +91,8 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
     bearing = location.calculateBearing(
       myLocation.latitude,
       myLocation.longitude,
-      opponentLocation.latitude,
-      opponentLocation.longitude,
+      friendLocation.latitude,
+      friendLocation.longitude,
     );
   }
 
@@ -100,13 +102,32 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
       backgroundColor: Colors.blue,
       appBar: AppBar(
         centerTitle: true,
-        title: Text(
-          widget.opponentName,
-          style: const TextStyle(
-            fontSize: 20,
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (widget.friendImage == null) ...[
+              const CircleAvatar(
+                radius: 16,
+                backgroundImage: AssetImage('images/default.png'),
+                backgroundColor: Colors.white,
+              )
+            ] else ...[
+              CircleAvatar(
+                radius: 16,
+                backgroundImage: NetworkImage(widget.friendImage!),
+              ),
+            ],
+            const SizedBox(width: 6),
+            Text(
+              widget.friendName,
+              style: const TextStyle(
+                fontSize: 20,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
         iconTheme: const IconThemeData(
           color: Colors.white,
@@ -124,7 +145,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                 _buildCompass(bearing),
                 const SizedBox(height: 50),
                 Text(
-                  '${widget.opponentName}との距離は...',
+                  '${widget.friendName}との距離は...',
                   style: const TextStyle(
                     fontSize: 20,
                     color: Colors.white,

@@ -55,8 +55,9 @@ class Tomodoko extends StatelessWidget {
           final args = settings.arguments as UserDetailScreenArguments;
           return MaterialPageRoute(builder: (context) {
             return UserDetailScreen(
-              opponentUid: args.uid,
-              opponentName: args.name,
+              friendUid: args.uid,
+              friendName: args.name,
+              friendImage: args.image,
             );
           });
         }
