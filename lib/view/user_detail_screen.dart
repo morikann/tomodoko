@@ -99,6 +99,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
     return Scaffold(
       backgroundColor: Colors.blue,
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
           widget.opponentName,
           style: const TextStyle(

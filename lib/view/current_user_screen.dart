@@ -44,6 +44,7 @@ class _CurrentUserScreenState extends State<CurrentUserScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Text(
           'マイページ',
           style: TextStyle(fontSize: 18),

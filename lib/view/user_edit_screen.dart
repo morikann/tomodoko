@@ -139,6 +139,7 @@ class _UserEditScreenState extends State<UserEditScreen> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
+        centerTitle: true,
         title: const Text(
           'プロフィールの編集',
           style: TextStyle(fontSize: 18),
