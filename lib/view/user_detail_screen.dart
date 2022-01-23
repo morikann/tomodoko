@@ -142,7 +142,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
             child: Column(
               children: [
                 const SizedBox(height: 100),
-                _buildCompass(bearing),
+                _buildCompass(bearing, distance),
                 const SizedBox(height: 50),
                 Text(
                   '${widget.friendName}との距離は...',
@@ -209,7 +209,7 @@ Widget _setDistanceText(double? distance) {
   );
 }
 
-Widget _buildCompass(double bearing) {
+Widget _buildCompass(double bearing, double? distance) {
   return StreamBuilder<CompassEvent>(
     stream: FlutterCompass.events,
     builder: (context, snapshot) {
@@ -236,17 +236,21 @@ Widget _buildCompass(double bearing) {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(
-            color: Colors.white,
+            color: distance != null && distance <= 50
+                ? Colors.yellow
+                : Colors.white,
           ),
         ),
         child: Transform.rotate(
           angle: (direction - bearing) * (pi / 180) * -1,
-          child: const Padding(
-            padding: EdgeInsets.only(bottom: 15),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 15),
             child: Icon(
               Icons.navigation,
               size: 180,
-              color: Colors.white,
+              color: distance != null && distance <= 50
+                  ? Colors.yellow
+                  : Colors.white,
             ),
           ),
         ),
