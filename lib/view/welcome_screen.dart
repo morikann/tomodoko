@@ -15,55 +15,57 @@ class WelcomeScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 30.0),
           child: Center(
             child: SingleChildScrollView(
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height - 100,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'TOMODOKO',
-                      style: TextStyle(
-                        fontSize: 54.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue,
-                        fontFamily: 'FjallaOne',
-                        letterSpacing: 3.0,
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    Hero(
-                      tag: 'logo',
-                      child: SizedBox(
-                        height: 300,
-                        child: Image.asset(
-                          'images/tomodoko_top.png',
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(
+                    width: double.infinity,
+                    height: 70,
+                    child: FittedBox(
+                      child: Text(
+                        'TOMODOKO',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                          fontFamily: 'FjallaOne',
+                          letterSpacing: 1.0,
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      height: 60.0,
+                  ),
+                  const SizedBox(height: 30),
+                  Hero(
+                    tag: 'logo',
+                    child: SizedBox(
+                      height: 250,
+                      child: Image.asset(
+                        'images/tomodoko_top.png',
+                      ),
                     ),
-                    CommonButton(
-                      name: 'アカウント登録',
-                      onPressed: () {
-                        Navigator.of(context).pushNamed(SignupScreen.id);
-                      },
-                      textColor: Colors.blue,
-                      backgroundColor: Colors.white,
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    CommonButton(
-                      name: 'ログイン',
-                      onPressed: () {
-                        Navigator.of(context).pushNamed(LoginScreen.id);
-                      },
-                      textColor: Colors.white,
-                      backgroundColor: Colors.blue,
-                    ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(
+                    height: 60.0,
+                  ),
+                  CommonButton(
+                    name: 'アカウント登録',
+                    onPressed: () {
+                      Navigator.of(context).pushNamed(SignupScreen.id);
+                    },
+                    textColor: Colors.blue,
+                    backgroundColor: Colors.white,
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  CommonButton(
+                    name: 'ログイン',
+                    onPressed: () {
+                      Navigator.of(context).pushNamed(LoginScreen.id);
+                    },
+                    textColor: Colors.white,
+                    backgroundColor: Colors.blue,
+                  ),
+                ],
               ),
             ),
           ),
